@@ -1,0 +1,99 @@
+.address-book-section {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.address-book-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.btn-add-address {
+    padding: 10px 20px;
+    background-color: var(--color-primary);
+    color: var(--bg-dark-2);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-add-address:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.btn-add-address i {
+    margin-right: 8px;
+}
+
+.address-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.address-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.address-card-main {
+    flex-grow: 1;
+}
+
+.address-card p {
+    margin: 5px 0;
+    color: var(--text-muted);
+}
+
+.address-card strong {
+    color: var(--text-dark);
+}
+
+.address-label {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.default-badge {
+    margin-left: 10px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: #d4edda;
+    color: #155724;
+    border-radius: 4px;
+}
+
+.address-card-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+.btn-action {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.btn-action:hover {
+    color: var(--color-primary);
+}
+
+.btn-delete:hover {
+    color: #dc3545; /* Red color for delete */
+}

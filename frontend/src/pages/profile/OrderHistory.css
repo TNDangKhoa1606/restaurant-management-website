@@ -1,0 +1,89 @@
+.order-history-section {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.order-card {
+    background-color: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+}
+
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--bg-light);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.order-id {
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.order-status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-hoan-thanh {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-da-huy {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-dang-giao {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.order-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.order-total {
+    font-weight: 600;
+    color: var(--color-secondary);
+}
+
+.btn-view-detail {
+    padding: 8px 15px;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-view-detail:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--bg-dark-2);
+}

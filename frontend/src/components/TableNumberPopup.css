@@ -1,0 +1,62 @@
+/* d:/my-app/frontend/src/components/TableNumberPopup.css */
+
+/* Tái sử dụng lớp phủ từ popup xác nhận */
+@import url('./ReservationConfirmationPopup.css');
+
+.table-number-popup {
+    max-width: 350px;
+    padding: 30px;
+}
+
+.table-number-popup h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--text-dark);
+}
+
+.table-number-popup form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.table-number-popup input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1.2rem;
+    box-sizing: border-box;
+    text-align: center;
+    -moz-appearance: textfield; /* Firefox */
+}
+
+.table-number-popup input::-webkit-outer-spin-button,
+.table-number-popup input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.table-number-popup input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(207, 166, 112, 0.25);
+}
+
+.table-number-popup button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--color-primary);
+    color: var(--text-light);
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.table-number-popup button:hover {
+    background-color: var(--color-primary-hover);
+}
