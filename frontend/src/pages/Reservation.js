@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Reservation.css';
 import reservationImg from '../assets/images/reservation-img.jpg'; // Đảm bảo bạn có ảnh này
 import ReservationConfirmationPopup from '../components/ReservationConfirmationPopup';
+import PreOrderPopup, { mockMenu } from '../components/PreOrderPopup';
 
 function Reservation() {
     const initialFormData = {
@@ -15,6 +16,9 @@ function Reservation() {
 
     const [formData, setFormData] = useState(initialFormData);
     const [showPopup, setShowPopup] = useState(false);
+    const [showPreOrderPopup, setShowPreOrderPopup] = useState(false);
+    const [reservationType, setReservationType] = useState('simple'); // 'simple' hoặc 'pre-order'
+
 
     // Danh sách các khung giờ để chọn
     const timeSlots = [
@@ -50,9 +54,26 @@ function Reservation() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Logic để xử lý gửi form sẽ được thêm sau
-        console.log('Reservation data:', formData);
-        setShowPopup(true); // Hiển thị popup thay vì alert
+        if (reservationType === 'simple') {
+            // Trường hợp 1: Chỉ đặt bàn
+            console.log('Submitting simple reservation:', formData);
+            setShowPopup(true); // Hiển thị popup xác nhận thành công
+        } else {
+            // Trường hợp 2: Đặt bàn & gọi món -> Mở popup chọn món
+            setShowPreOrderPopup(true);
+        }
+    };
+
+    const handlePreOrderSubmit = (items) => {
+        // Sau khi khách chọn món và xác nhận từ popup
+        const finalSubmissionData = {
+            ...formData,
+            reservationType,
+            preOrderItems: items
+        };
+        console.log('Submitting reservation with pre-order:', finalSubmissionData);
+        setShowPreOrderPopup(false); // Đóng popup chọn món
+        setShowPopup(true); // Mở popup xác nhận cuối cùng
     };
 
     return (
@@ -99,6 +120,20 @@ function Reservation() {
                                 ))}
                             </div>
                         </div>
+
+                        {/* --- Lựa chọn loại hình đặt bàn --- */}
+                        <div className="form-group">
+                            <label>Loại hình đặt bàn</label>
+                            <div className="reservation-type-toggle">
+                                <button type="button" className={reservationType === 'simple' ? 'active' : ''} onClick={() => setReservationType('simple')}>
+                                    Chỉ đặt bàn
+                                </button>
+                                <button type="button" className={reservationType === 'pre-order' ? 'active' : ''} onClick={() => setReservationType('pre-order')}>
+                                    Đặt bàn & Gọi món trước
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="form-group">
                             <label htmlFor="name">Họ và Tên</label>
                             <input type="text" id="name" name="name" placeholder="Nhập họ và tên của bạn" value={formData.name} onChange={handleChange} required className="form-control" />
@@ -118,6 +153,7 @@ function Reservation() {
                     <img src={reservationImg} alt="Không gian nhà hàng sang trọng" />
                 </div>
                 {showPopup && <ReservationConfirmationPopup onClose={handleClosePopup} />}
+                {showPreOrderPopup && <PreOrderPopup menuItems={mockMenu} onClose={() => setShowPreOrderPopup(false)} onSubmit={handlePreOrderSubmit} />}
             </div>
         </div>
     );
