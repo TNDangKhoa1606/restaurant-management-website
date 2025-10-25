@@ -192,7 +192,8 @@
     border-radius: 4px;
 }
 
-.menu-grid {
+/* Scope grid to popup to avoid collisions with other .menu-grid rules */
+.pos-popup .menu-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
@@ -207,6 +208,9 @@
     cursor: pointer;
     transition: var(--transition);
     box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .menu-card:hover {
@@ -224,6 +228,7 @@
     aspect-ratio: 1;
     object-fit: cover;
     background: var(--color-bg-light);
+    min-height: 150px; /* Giữ chỗ cho ảnh, tránh giật layout */
 }
 
 .menu-info {
@@ -462,10 +467,12 @@
     }
 
     .category-sidebar {
-        width: 100%;
-        padding: 12px;
-        border-right: none;
-        border-bottom: 1px solid var(--color-border);
+        /* Ẩn sidebar riêng và tích hợp vào header của menu content */
+        display: none;
+    }
+    .menu-content {
+        /* Thêm padding trên để bù cho sidebar bị ẩn */
+        padding-top: 70px; 
     }
 
     .category-sidebar ul {
@@ -480,7 +487,7 @@
         margin: 0;
     }
 
-    .menu-grid {
+    .pos-popup .menu-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
     }
