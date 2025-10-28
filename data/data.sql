@@ -32,18 +32,18 @@ INSERT INTO `roles` (`role_id`, `role_name`) VALUES
 -- --------------------------------------------------------
 INSERT INTO `users` (`user_id`, `role_id`, `name`, `email`, `phone`, `password_hash`) VALUES
 -- Admin
-(1, 1, 'Admin Manager', 'admin@example.com', '0901000001', 'admin123'),
+(1, 1, 'Admin Manager', 'admin@example.com', '0901000001', '$2a$10$E9.0u3b/f.7Wz5z/5A6A9uL2E/7C8D/6B5A4.3E2F1G0H9I8J7K6'),
 -- Staff
-(2, 2, 'Nhân viên A', 'staff.a@example.com', '0902000002', '123'),
-(3, 2, 'Nhân viên B', 'staff.b@example.com', '0903000003', '123'),
+(2, 2, 'Nhân viên A', 'staff.a@example.com', '0902000002', '$2a$10$zP.a1b.c2d.e3f.g4h.i5j.k6l.m7n.o8p.q9r.s0t.u1v.w2x.y3'),
+(3, 2, 'Nhân viên B', 'staff.b@example.com', '0903000003', '$2a$10$zP.a1b.c2d.e3f.g4h.i5j.k6l.m7n.o8p.q9r.s0t.u1v.w2x.y3'),
 -- Customers
-(4, 3, 'Nguyễn Văn An', 'nguyen.an@example.com', '0911111111', '123'),
-(5, 3, 'Trần Thị Bình', 'tran.binh@example.com', '0922222222', '123'),
-(6, 3, 'Lê Hoàng Cường', 'le.cuong@example.com', '0933333333', '123'),
-(7, 3, 'Phạm Thị Dung', 'pham.dung@example.com', '0944444444', '123'),
-(8, 3, 'Võ Minh Hải', 'vo.hai@example.com', '0955555555', '123'),
-(9, 3, 'Đỗ Gia Hân', 'do.han@example.com', '0966666666', '123'),
-(10, 3, 'Hoàng Văn Kiên', 'hoang.kien@example.com', '0977777777', '123');
+(4, 3, 'Nguyễn Văn An', 'nguyen.an@example.com', '0911111111', '$2a$10$3l.L8f2ZlH.uL3qD/j5Xf.LzL2gJ/a5H/g5g6h7i8j9k0l1m2n3o'),
+(5, 3, 'Trần Thị Bình', 'tran.binh@example.com', '0922222222', '$2a$10$3l.L8f2ZlH.uL3qD/j5Xf.LzL2gJ/a5H/g5g6h7i8j9k0l1m2n3o'),
+(6, 3, 'Lê Hoàng Cường', 'le.cuong@example.com', '0933333333', '$2a$10$3l.L8f2ZlH.uL3qD/j5Xf.LzL2gJ/a5H/g5g6h7i8j9k0l1m2n3o'),
+(7, 3, 'Phạm Thị Dung', 'pham.dung@example.com', '0944444444', '$2a$10$3l.L8f2ZlH.uL3qD/j5Xf.LzL2gJ/a5H/g5g6h7i8j9k0l1m2n3o'),
+(8, 3, 'Võ Minh Hải', 'vo.hai@example.com', '0955555555', '$2a$10$3l.L8f2ZlH.uL3qD/j5Xf.LzL2gJ/a5H/g5g6h7i8j9k0l1m2n3o'),
+(9, 3, 'Đỗ Gia Hân', 'do.han@example.com', '0966666666', '$2a$10$3l.L8f2ZlH.uL3qD/j5Xf.LzL2gJ/a5H/g5g6h7i8j9k0l1m2n3o'),
+(10, 3, 'Hoàng Văn Kiên', 'hoang.kien@example.com', '0977777777', '$2a$10$3l.L8f2ZlH.uL3qD/j5Xf.LzL2gJ/a5H/g5g6h7i8j9k0l1m2n3o');
 
 -- --------------------------------------------------------
 -- 3. Thêm dữ liệu cho bảng `addresses`

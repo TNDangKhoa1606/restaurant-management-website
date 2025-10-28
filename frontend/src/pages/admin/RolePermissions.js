@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // --- Dữ liệu giả lập ---
 const roles = [
@@ -29,8 +29,40 @@ const initialRolePermissions = {
 // --- Kết thúc dữ liệu giả lập ---
 
 function RolePermissions() {
-    const [selectedRole, setSelectedRole] = useState(roles[0].id);
-    const [permissions, setPermissions] = useState(initialRolePermissions);
+    const [allRoles, setAllRoles] = useState([]);
+    const [allPerms, setAllPerms] = useState([]);
+    const [selectedRole, setSelectedRole] = useState('');
+    const [permissions, setPermissions] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        // Giả lập việc gọi API để lấy dữ liệu
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                // Trong thực tế, bạn sẽ gọi API ở đây, ví dụ:
+                // const rolesRes = await fetch('/api/roles');
+                // const rolesData = await rolesRes.json();
+                // const permsRes = await fetch('/api/permissions');
+                // const permsData = await permsRes.json();
+                
+                // Giả lập dữ liệu trả về từ API
+                setAllRoles(roles);
+                setAllPerms(allPermissions);
+                setPermissions(initialRolePermissions);
+                if (roles.length > 0) {
+                    setSelectedRole(roles[0].id);
+                }
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const handlePermissionChange = (permissionId) => {
         const currentPermissions = permissions[selectedRole] || [];
@@ -44,32 +76,49 @@ function RolePermissions() {
         });
     };
 
-    const handleSaveChanges = () => {
-        console.log('Saving changes:', permissions);
-        // Logic gửi dữ liệu `permissions` lên backend sẽ ở đây
-        alert('Đã lưu thay đổi (xem console để biết chi tiết)!');
+    const handleSaveChanges = async () => {
+        setIsSaving(true);
+        console.log('Đang lưu các quyền sau:', { role: selectedRole, permissions: permissions[selectedRole] });
+        try {
+            // Giả lập gọi API để lưu
+            // await fetch(`/api/roles/${selectedRole}/permissions`, {
+            //     method: 'PUT',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ permissions: permissions[selectedRole] }),
+            // });
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Giả lập độ trễ mạng
+            alert('Đã lưu thay đổi thành công!');
+        } catch (error) {
+            console.error("Lỗi khi lưu thay đổi:", error);
+            alert('Có lỗi xảy ra, không thể lưu thay đổi.');
+        } finally {
+            setIsSaving(false);
+        }
     };
+
+    if (isLoading) {
+        return <div>Đang tải dữ liệu phân quyền...</div>;
+    }
 
     return (
         <div className="role-permissions-container">
             <div className="role-permissions-grid">
                 {/* Cột danh sách vai trò */}
                 <div className="role-list">
-                    <h4>Chọn vai trò</h4>
+                    <h4>Danh sách vai trò</h4>
                     <ul>
-                        {roles.map(role => (
+                        {allRoles.map(role => (
                             <li key={role.id} className={selectedRole === role.id ? 'active' : ''} onClick={() => setSelectedRole(role.id)}>
                                 {role.name}
                             </li>
                         ))}
                     </ul>
                 </div>
-
                 {/* Cột danh sách quyền */}
                 <div className="permission-list">
-                    <h4>Các quyền của vai trò: {roles.find(r => r.id === selectedRole)?.name}</h4>
+                    <h4>Các quyền của vai trò: {allRoles.find(r => r.id === selectedRole)?.name}</h4>
                     <div className="permission-items">
-                        {allPermissions.map(permission => (
+                        {allPerms.map(permission => (
                             <div key={permission.id} className="permission-item">
                                 <input type="checkbox" id={permission.id} checked={permissions[selectedRole]?.includes(permission.id) || false} onChange={() => handlePermissionChange(permission.id)} />
                                 <label htmlFor={permission.id}>{permission.label}</label>
@@ -77,7 +126,9 @@ function RolePermissions() {
                         ))}
                     </div>
                     <div className="permission-actions">
-                        <button onClick={handleSaveChanges} className="btn-admin btn-admin-primary">Lưu thay đổi</button>
+                        <button onClick={handleSaveChanges} className="btn-admin btn-admin-primary" disabled={isSaving}>
+                            {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
+                        </button>
                     </div>
                 </div>
             </div>

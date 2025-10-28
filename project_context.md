@@ -178,3 +178,24 @@ Tài liệu này mô tả chi tiết các chức năng của hệ thống websit
 | **Can thiệp thủ công vào hội thoại** | Cho phép nhân viên tiếp quản cuộc trò chuyện khi chatbot không xử lý được. |
 | **Giới hạn khung giờ hoạt động** | Cấu hình chatbot chỉ hoạt động trong giờ làm việc. |
 | **Trả lời bằng hình ảnh tương tác** | Chatbot có thể gửi hình ảnh món ăn, sơ đồ bàn để tăng tính trực quan. |
+
+---
+
+## 5. Nhật ký phát triển (Development Log)
+
+Mục này ghi lại các thay đổi và tiến độ quan trọng của dự án theo thời gian.
+
+### Ngày 23/05/2024: Hoàn thành Luồng Đăng nhập cho Khách hàng
+
+**Tóm tắt:** Đã hoàn thiện chức năng đăng nhập, đăng xuất, và quản lý trạng thái cho vai trò **Khách hàng**.
+
+- **Backend:**
+    - Hoàn thiện API đăng nhập (`/api/auth/login`) với `bcrypt` để so sánh mật khẩu và `JWT` để tạo token.
+    - Cập nhật API để trả về thông tin người dùng bao gồm `name`, `email`, `role`, và `phone`.
+    - Sửa lỗi dữ liệu mẫu (`data.sql`) bằng cách cập nhật mật khẩu đã được mã hóa chính xác cho tất cả người dùng.
+- **Frontend:**
+    - Tạo `AuthContext` để quản lý trạng thái đăng nhập toàn cục (user, token, isAuthenticated). Trạng thái được lưu vào `localStorage` để duy trì phiên đăng nhập.
+    - Kết nối trang `Login.js` với API backend và cấu hình để **chỉ chấp nhận tài khoản có vai trò "Customer"**.
+    - Cập nhật `Header.js` để hiển thị động: "Xin chào, [Tên người dùng]" và nút "Đăng xuất" khi đã đăng nhập; nút "Đăng nhập" khi chưa đăng nhập.
+    - Cập nhật trang `ProfileInfo.js` để lấy và hiển thị dữ liệu (tên, email, số điện thoại) từ `AuthContext`.
+- **Trạng thái:** Chức năng đăng nhập, đăng xuất, và hiển thị thông tin người dùng cho vai trò **Khách hàng** đã hoạt động hoàn chỉnh.

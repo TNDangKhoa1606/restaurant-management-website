@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../assets/images/logo.png'; // Import logo
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../pages/AuthContext'; // Sử dụng AuthContext
  
 function Header() {
     const [isScrolled, setScrolled] = useState(false);
     const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { isAuthenticated, user, logout } = useAuth(); // Lấy trạng thái từ context
+    const navigate = useNavigate();
  
     useEffect(() => {
         const handleScroll = () => {
@@ -23,6 +26,12 @@ function Header() {
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
+
+    const handleLogout = () => {
+        logout(); // Gọi hàm logout từ context
+        setMobileMenuOpen(false); // Đóng menu mobile nếu đang mở
+        navigate('/'); // Chuyển hướng về trang chủ
+    };
  
     // Helper cho các class của NavLink để tránh lặp lại code
     const navLinkClasses = "block py-2 text-base text-text-light hover:text-primary transition-colors duration-300";
@@ -62,6 +71,16 @@ function Header() {
                                 <li><NavLink to="/blog" className={desktopNavLinkClasses}>Bài Viết</NavLink></li>
                                 <li><NavLink to="/contact" className={desktopNavLinkClasses}>Liên Hệ</NavLink></li>
                                 <li>
+                                    {isAuthenticated ? (
+                                        <div className="flex items-center space-x-4">
+                                            <NavLink to="/profile" className={desktopNavLinkClasses}>Xin chào, {user.name}</NavLink>
+                                            <button onClick={handleLogout} className="text-text-light hover:text-primary transition-colors duration-300">Đăng xuất</button>
+                                        </div>
+                                    ) : (
+                                        <NavLink to="/login" className={desktopNavLinkClasses}>Đăng nhập</NavLink>
+                                    )}
+                                </li>
+                                <li>
                                     <Link to="/reservation" className="bg-primary hover:bg-primary-hover text-white font-bold py-2 px-5 rounded-full transition-colors duration-300">
                                         Đặt Bàn
                                     </Link>
@@ -92,6 +111,16 @@ function Header() {
                         <li><Link to="/shop" className={navLinkClasses} onClick={() => setMobileMenuOpen(false)}>Cửa Hàng</Link></li>
                         <li><Link to="/blog" className={navLinkClasses} onClick={() => setMobileMenuOpen(false)}>Bài Viết</Link></li>
                         <li><Link to="/contact" className={navLinkClasses} onClick={() => setMobileMenuOpen(false)}>Liên Hệ</Link></li>
+                        <li className="pt-4">
+                            {isAuthenticated ? (
+                                <div className="flex flex-col items-center space-y-4">
+                                     <Link to="/profile" className={navLinkClasses} onClick={() => setMobileMenuOpen(false)}>Hồ sơ: {user.name}</Link>
+                                     <button onClick={handleLogout} className={navLinkClasses}>Đăng xuất</button>
+                                </div>
+                            ) : (
+                                <Link to="/login" className={navLinkClasses} onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
+                            )}
+                        </li>
                         <li className="pt-4">
                             <Link to="/reservation" className="bg-primary hover:bg-primary-hover text-white font-bold py-2 px-5 rounded-full transition-colors duration-300 text-base" onClick={() => setMobileMenuOpen(false)}>
                                 Đặt Bàn

@@ -82,6 +82,7 @@ const login = async (req, res) => {
             id: user.user_id,
             name: user.name,
             email: user.email,
+            phone: user.phone, // Thêm số điện thoại vào payload
             role: user.role_name, // Sử dụng role_name từ kết quả JOIN
         };
 

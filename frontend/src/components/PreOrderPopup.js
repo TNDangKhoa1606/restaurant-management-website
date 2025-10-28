@@ -29,10 +29,13 @@ export const mockMenu = [
   { id: 21, name: "Mì Singapore khô", price: 85000, category: "Quốc tế khác", image: "/img/mi_singapore.jpg" },
   { id: 22, name: "Mì Ragu Indonesia", price: 83000, category: "Quốc tế khác", image: "/img/mi_ragu.jpg" },
   // Đồ uống & tráng miệng
-  { id: 23, name: "Trà sữa trân châu", price: 35000, category: "Đồ uống", image: "/img/trasua.jpg" },
-  { id: 24, name: "Trà chanh sả gừng", price: 30000, category: "Đồ uống", image: "/img/trachanh.jpg" },
-  { id: 25, name: "Chè khúc bạch", price: 35000, category: "Tráng miệng", image: "/img/chekhucbach.jpg" },
-  { id: 26, name: "Kem dừa non", price: 40000, category: "Tráng miệng", image: "/img/kemdua.jpg" }
+  { id: 23, name: "Trà sữa trân châu", price: 45000, category: "Đồ uống & tráng miệng", image: "/img/trasua.jpg" },
+  { id: 24, name: "Nước ngọt các loại", price: 20000, category: "Đồ uống & tráng miệng", image: "/img/nuocngot.jpg" },
+  { id: 25, name: "Bánh mochi kem", price: 35000, category: "Đồ uống & tráng miệng", image: "/img/mochi.jpg" },
+  { id: 26, name: "Tiramisu", price: 60000, category: "Đồ uống & tráng miệng", image: "/img/tiramisu.jpg" },
+  { id: 27, name: "Bingsu đậu đỏ", price: 65000, category: "Đồ uống & tráng miệng", image: "/img/bingsu.jpg" },
+  { id: 28, name: "Chè khúc bạch", price: 40000, category: "Đồ uống & tráng miệng", image: "/img/chekhucbach.jpg" },
+
 ];
 
 export default function PreOrderPopup({ onClose, onSubmit }) {

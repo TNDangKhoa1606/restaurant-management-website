@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../AuthContext'; // Import useAuth
 
 const ProfileInfo = () => {
-    // Dữ liệu mẫu, sau này sẽ lấy từ context hoặc props
-    const mockUser = {
-        id: 4,
-        name: 'Nguyễn Văn An',
-        email: 'nguyen.an@example.com',
-        phone: '0911111111',
-    };
+    const { user } = useAuth(); // Lấy thông tin người dùng từ context
+    const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
 
-    const [formData, setFormData] = useState(mockUser);
+    useEffect(() => {
+        // Cập nhật form khi có thông tin người dùng từ context
+        if (user) {
+            setFormData({
+                name: user.name || '',
+                email: user.email || '',
+                phone: user.phone || '', // Xử lý trường hợp phone không có
+            });
+        }
+    }, [user]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;

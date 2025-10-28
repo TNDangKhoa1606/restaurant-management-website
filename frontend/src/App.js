@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { AuthProvider } from './pages/AuthContext';
 import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
@@ -40,10 +41,11 @@ import CreateAccount from './pages/admin/CreateAccount';
 import EmployeeList from './pages/admin/EmployeeList';
 import RolePermissions from './pages/admin/RolePermissions';
 import ShiftManagement from './pages/admin/ShiftManagement';
-import MenuManagement from './pages/admin/MenuManagement';
 import TableManagement from './pages/admin/TableManagement';
 import InventoryManagement from './pages/admin/InventoryManagement';
 import SalesReport from './pages/admin/SalesReport';
+import OrderManagement from './pages/admin/OrderManagement'; // Thêm import
+import CustomerManagement from './pages/admin/CustomerManagement'; // Thêm import
 
 // Component Layout chính cho các trang của khách hàng
 const MainLayout = ({ cartItems, onCartOpen }) => {
@@ -120,27 +122,32 @@ const adminConfig = {
   roleName: 'Quản trị viên',
   avatarBgColor: 'e74c3c',
   navLinks: [
-    { to: '/admin/dashboard', text: 'Dashboard' },
-    { to: '/admin/employees', text: 'Danh sách nhân viên' },
-    { to: '/admin/create-account', text: 'Tạo tài khoản' },
-    { to: '/admin/permissions', text: 'Phân quyền' },
-    { to: '/admin/shifts', text: 'Ca làm việc' },
-    { to: '/admin/menu', text: 'Thực đơn' },
-    { to: '/admin/tables', text: 'Bàn ăn' },
-    { to: '/admin/inventory', text: 'Kho nguyên liệu' },
+    { to: '/admin/dashboard', text: 'Dashboard' }, // Báo cáo
+    { to: '/admin/orders', text: 'Quản lý Đơn hàng' }, // Quản lý
+    { to: '/admin/reservations', text: 'Quản lý Đặt bàn' }, // Quản lý
+    { to: '/admin/tables', text: 'Quản lý Bàn ăn' }, // Quản lý
+    { to: '/admin/inventory', text: 'Quản lý Kho' }, // Quản lý
+    { to: '/admin/employees', text: 'Quản lý Nhân viên' }, // Con người
+    { to: '/admin/customers', text: 'Quản lý Khách hàng' }, // Con người
+    { to: '/admin/shifts', text: 'Quản lý Ca làm' }, // Con người
+    { to: '/admin/permissions', text: 'Phân quyền' }, // Hệ thống
+    { to: '/admin/create-account', text: 'Tạo tài khoản' }, // Hệ thống
+    { to: '/admin/inventory', text: 'Quản lý kho' },
     { to: '/admin/reports', text: 'Thống kê doanh số' },
   ],
   pageTitles: {
     '/admin': 'Dashboard',
     '/admin/dashboard': 'Dashboard',
     '/admin/employees': 'Danh sách nhân viên',
+    '/admin/customers': 'Quản lý Khách hàng',
     '/admin/create-account': 'Tạo tài khoản',
     '/admin/permissions': 'Phân quyền chức năng',
     '/admin/shifts': 'Quản lý ca làm việc',
-    '/admin/menu': 'Quản lý thực đơn',
     '/admin/tables': 'Quản lý bàn ăn',
-    '/admin/inventory': 'Quản lý kho nguyên liệu',
+    '/admin/reservations': 'Quản lý Đặt bàn',
+    '/admin/inventory': 'Quản lý kho',
     '/admin/reports': 'Thống kê doanh số',
+    '/admin/orders': 'Quản lý Đơn hàng',
   }
 };
 
@@ -231,90 +238,104 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className={`App ${isCartOpen ? 'cart-open' : ''}`}>
-        <Cart
-          cartItems={cartItems}
-          onAdd={onAddToCart}
-          onRemove={onRemoveFromCart}
-          onClose={() => setIsCartOpen(false)}
-          isOpen={isCartOpen}
-        />
-        <Routes>
-          {/* Các trang không có Header/Footer */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/table/:tableId" element={<TableMenu />} />
+    <AuthProvider>
+      <Router>
+        <div className={`App ${isCartOpen ? 'cart-open' : ''}`}>
+          <Cart
+            cartItems={cartItems}
+            onAdd={onAddToCart}
+            onRemove={onRemoveFromCart}
+            onClose={() => setIsCartOpen(false)}
+            isOpen={isCartOpen}
+          />
+          <Routes>
+            {/* Các trang không có Header/Footer */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/table/:tableId" element={<TableMenu />} />
 
-          {/* Các trang sử dụng Layout chính (có Header/Footer) */}
-          <Route path="/" element={<MainLayout cartItems={cartItems} onCartOpen={() => setIsCartOpen(true)} />}>
-            <Route index element={<HomePage onAddToCart={onAddToCart} />} />
-            <Route path="menu" element={<MenuPage onAddToCart={onAddToCart} />} />
-            <Route path="reservation" element={<Reservation />} />
-            <Route path="about" element={<AboutPage />} />
-            <Route path="blog" element={<BlogPage />} />
-            <Route path="contact" element={<ContactPage />} />
-            <Route path="checkout" element={<Checkout />} />
-            <Route path="profile" element={<UserProfile />}>
-              <Route index element={<ProfileInfo />} />
-              <Route path="orders" element={<OrderHistory />} />
-              <Route path="orders/:orderId" element={<OrderDetail />} />
-              <Route path="addresses" element={<AddressBook />} />
-              <Route path="change-password" element={<ChangePassword />} />
+            {/* Các trang sử dụng Layout chính (có Header/Footer) */}
+            <Route path="/" element={<MainLayout cartItems={cartItems} onCartOpen={() => setIsCartOpen(true)} />}>
+              <Route index element={<HomePage onAddToCart={onAddToCart} />} />
+              <Route path="menu" element={<MenuPage onAddToCart={onAddToCart} />} />
+              <Route path="reservation" element={<Reservation />} />
+              <Route path="about" element={<AboutPage />} />
+              <Route path="blog" element={<BlogPage />} />
+              <Route path="contact" element={<ContactPage />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="profile" element={<UserProfile />}>
+                <Route index element={<ProfileInfo />} />
+                <Route path="orders" element={<OrderHistory />} />
+                <Route path="orders/:orderId" element={<OrderDetail />} />
+                <Route path="addresses" element={<AddressBook />} />
+                <Route path="change-password" element={<ChangePassword />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<DashboardLayout roleConfig={adminConfig} />}>
-            <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            {/* Admin Routes */}
+            <Route path="/admin" element={<DashboardLayout roleConfig={adminConfig} />}>
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
 
-            {/* Route for the Create Account page */}
-            <Route path="create-account" element={<CreateAccount />} />
+              {/* Route for the Create Account page */}
+              <Route path="create-account" element={<CreateAccount />} />
 
-            {/* Route for the Employee List page */}
-            <Route path="employees" element={<EmployeeList />} />
+              {/* Route for the Employee List page */}
+              <Route path="employees" element={<EmployeeList />} />
 
-            {/* Route for the Role Permissions page */}
-            <Route path="permissions" element={<RolePermissions />} />
+              {/* Route for the Role Permissions page */}
+              <Route path="permissions" element={<RolePermissions />} />
 
-            {/* Route for the Shift Management page */}
-            <Route path="shifts" element={<ShiftManagement />} />
+              {/* Route for the Shift Management page */}
+              <Route path="shifts" element={<ShiftManagement />} />
 
-            {/* Route for the Menu Management page */}
-            <Route path="menu" element={<MenuManagement />} />
+              {/* Route for the Table Management page */}
+              <Route path="tables" element={<TableManagement />} />
 
-            {/* Route for the Table Management page */}
-            <Route path="tables" element={<TableManagement />} />
+              {/* Route for the Inventory Management page */}
+              <Route path="inventory" element={<InventoryManagement />} />
 
-            {/* Route for the Inventory Management page */}
-            <Route path="inventory" element={<InventoryManagement />} />
+              {/* Route for the Sales Report page */}
+              <Route path="reports" element={<SalesReport />} />
+            </Route>
+            {/* Admin Routes */}
+            <Route path="/admin" element={<DashboardLayout roleConfig={adminConfig} />}>
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="create-account" element={<CreateAccount />} />
+              <Route path="employees" element={<EmployeeList />} />
+              <Route path="permissions" element={<RolePermissions />} />
+              <Route path="shifts" element={<ShiftManagement />} />
+              <Route path="tables" element={<TableManagement />} />
+              <Route path="inventory" element={<InventoryManagement />} />
+              <Route path="reports" element={<SalesReport />} />
+              <Route path="orders" element={<OrderManagement />} />
+              <Route path="customers" element={<CustomerManagement />} />
+              <Route path="reservations" element={<ReservationManagement />} />
+            </Route>
 
-            {/* Route for the Sales Report page */}
-            <Route path="reports" element={<SalesReport />} />
-          </Route>
+            {/* Receptionist Routes */}
+            <Route path="/receptionist" element={<DashboardLayout roleConfig={receptionistConfig} />}>
+              <Route index element={<ReservationManagement />} />
+              <Route path="reservations" element={<ReservationManagement />} />
+            </Route>
 
-          {/* Receptionist Routes */}
-          <Route path="/receptionist" element={<DashboardLayout roleConfig={receptionistConfig} />}>
-            <Route index element={<ReservationManagement />} />
-            <Route path="reservations" element={<ReservationManagement />} />
-          </Route>
+            {/* Kitchen Routes */}
+            <Route path="/kitchen" element={<DashboardLayout roleConfig={kitchenConfig} />}>
+              <Route index element={<KitchenOrders />} />
+              <Route path="orders" element={<KitchenOrders />} />
+            </Route>
 
-          {/* Kitchen Routes */}
-          <Route path="/kitchen" element={<DashboardLayout roleConfig={kitchenConfig} />}>
-            <Route index element={<KitchenOrders />} />
-            <Route path="orders" element={<KitchenOrders />} />
-          </Route>
-
-          {/* Waiter Routes */}
-          <Route path="/waiter" element={<DashboardLayout roleConfig={waiterConfig} />}>
-            <Route index element={<TableMap />} />
-            <Route path="tables" element={<TableMap />} />
-          </Route>
-        </Routes>
-      </div>
-    </Router>
+            {/* Waiter Routes */}
+            <Route path="/waiter" element={<DashboardLayout roleConfig={waiterConfig} />}>
+              <Route index element={<TableMap />} />
+              <Route path="tables" element={<TableMap />} />
+            </Route>
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
 
   );
 }

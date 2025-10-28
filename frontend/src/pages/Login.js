@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext'; // Import useAuth
 import sliderImage from '../assets/images/brlogin.jpg'; // Import ảnh nền
 
 function Login() {
@@ -8,6 +9,7 @@ function Login() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const { login } = useAuth(); // Lấy hàm login từ context
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,15 +31,17 @@ function Login() {
                 throw new Error(data.message || 'Đã có lỗi xảy ra.');
             }
 
-            // Lưu token và thông tin người dùng vào localStorage để sử dụng sau này
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
+            const userRole = data.user?.role?.toLowerCase();
 
-            // Chuyển hướng dựa trên vai trò người dùng
-            if (data.user && (data.user.role === 'admin' || data.user.role === 'staff' || data.user.role === 'kitchen' || data.user.role === 'cashier')) {
-                navigate('/admin/dashboard');
-            } else {
+            // Chỉ cho phép khách hàng đăng nhập ở trang này
+            if (userRole === 'customer') {
+                // Sử dụng hàm login từ context
+                login(data.user, data.token);
+                // Chuyển hướng về trang chủ
                 navigate('/');
+            } else {
+                // Nếu là admin hoặc staff, hiển thị lỗi
+                setError('Trang đăng nhập này chỉ dành cho khách hàng. Vui lòng sử dụng trang đăng nhập nội bộ.');
             }
         } catch (err) {
             setError(err.message);
