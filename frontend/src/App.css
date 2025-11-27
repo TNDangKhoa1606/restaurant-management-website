@@ -1,0 +1,443 @@
+/* Định nghĩa các biến màu toàn cục */
+:root {
+  --color-primary: #ffc107; /* Màu vàng chính */
+  --color-primary-hover: #ffca2c;
+  --color-secondary: #d35400; /* Màu cam phụ */
+
+  --bg-dark-1: #121212;
+  --bg-dark-2: #1e1e1e;
+  --bg-light: #ffffff;
+  --bg-light-hover: #f1f1f1;
+
+  --text-light: #f0f0f0;
+  --text-dark: #212529;
+  --text-muted: #6c757d;
+  --text-footer: #adb5bd;
+
+  --border-color: #dee2e6;
+  --overlay-dark: rgba(0, 0, 0, 0.7);
+}
+
+/* --- Header Styles --- */
+
+/* General Header Styling */
+.header-main {
+  background-color: transparent;
+  color: var(--text-light);
+  padding: 10px 0; /* Sử dụng padding để header tự động co giãn */
+  font-family: Arial, sans-serif;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000; /* Đảm bảo header luôn nằm trên cùng */
+  transition: background-color 0.3s ease-in-out; /* Hiệu ứng chuyển màu mượt mà */
+}
+
+.header-main.scrolled {
+  background-color: var(--bg-dark-2);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Thêm bóng mờ khi cuộn */
+}
+
+/* A basic container to center content */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-inner .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo */
+.header-logo-img {
+  height: 80px; /* Chiều cao của logo */
+  width: 200px; /* Chiều rộng của logo */
+  /* Adjust size as needed */
+  object-fit: contain; /* Đảm bảo logo không bị méo khi thay đổi tỷ lệ */
+  max-width: 100%;
+}
+
+/* Right side of the header */
+.header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Navigation Menu */
+.menu ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+}
+
+.menu li {
+  margin-left: 25px;
+}
+
+.menu a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.menu a:hover {
+  color: var(--color-primary);
+}
+
+/* Special "Reservation" button style */
+.menu li.btn a {
+  background-color: var(--color-primary);
+  color: var(--bg-dark-2);
+  padding: 10px 20px;
+  border-radius: 3px;
+}
+
+.menu li.btn a:hover {
+  background-color: var(--color-primary-hover);
+  color: var(--bg-dark-2);
+}
+
+/* Header Info Bar */
+.header-info {
+  display: flex;
+  justify-content: flex-end; /* Căn lề phải */
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 10px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  margin-left: 30px; /* Khoảng cách giữa các mục */
+}
+
+.info-item i {
+  color: var(--color-primary); /* Màu vàng cho icon */
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.info-item p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-light);
+}
+/* Header Controls (Search, Login, Cart) */
+.header-controls {
+  display: flex;
+  align-items: center;
+  margin-left: 30px;
+}
+
+.header-controls>div {
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+/* Placeholder for icons */
+.header-controls i {
+  font-size: 20px;
+  /* Make icons larger */
+  color: var(--text-light);
+}
+
+/* --- Hero Slider Styles --- */
+
+.hero-slider-wrap {
+  position: relative;
+  padding-top: 100px; /* Điều chỉnh khoảng đệm để vừa với header mới */
+  height: 600px;
+  /* You can adjust this height */
+  background-size: cover;
+  background-position: center center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;  
+  color: var(--text-light);
+}
+
+.hero-slider-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--overlay-dark);
+  z-index: 1;
+}
+
+.hero-slider-content {
+  position: relative;
+  z-index: 2;
+  font-family: 'Times New Roman', serif;
+  /* A fallback font */
+}
+
+.hero-text-welcome {
+  font-family: 'Kristi', cursive;
+  /* A decorative font, you might need to import this */
+  font-size: 80px;
+  color: var(--color-primary);
+  margin: 0;
+  line-height: 1;
+}
+
+.hero-text-brand-1 {
+  font-size: 110px;
+  font-weight: 600;
+  margin: 10px 0;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.hero-text-brand-2 {
+  font-size: 60px;
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+.hero-text-tagline {
+  font-size: 25px;
+  margin-top: 20px;
+  letter-spacing: 1px;
+}
+
+/* --- Footer Styles --- */
+
+.tbay-footer {
+  color: var(--text-footer);
+  font-size: 14px;
+}
+
+.footer-top-bar {
+  position: relative;
+  /* Bạn có thể thay đổi URL này bằng hình nền của bạn */
+  background-image: url('https://res.cloudinary.com/dm3nabmcc/image/upload/f_auto/q_auto/c_scale,w_1120/v1747871027/dining-room-table-setting_esji1z.jpg');
+  background-color: var(--bg-dark-2); /* Màu nền dự phòng */
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  padding: 200px 0; /* Tăng padding để tăng chiều cao */
+  text-align: center;
+  color: var(--text-light);
+}
+
+.footer-top-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7); /* Lớp phủ màu tối */
+  z-index: 1;
+}
+
+.footer-top-bar .container {
+  position: relative;
+  z-index: 2;
+}
+
+.footer-top-bar b {
+  font-size: 70px;
+  margin-right: 15px;
+  color: var(--color-primary); /* Màu vàng cho chữ chính */
+}
+
+.footer-top-bar span {
+  font-size: 35px;
+  color: var(--text-light);
+}
+
+.footer-main-content {
+  background-color: var(--bg-dark-2);
+  padding: 60px 0;
+}
+
+.footer-columns {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  /* Allow wrapping on smaller screens */
+  gap: 20px;
+}
+
+.footer-column {
+  flex: 1;
+  min-width: 250px;
+  /* For responsiveness */
+  padding: 0 15px;
+}
+
+.footer-column h4 {
+  color: var(--text-light);
+  font-size: 16px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.footer-column p {
+  line-height: 1.6;
+}
+
+.footer-logo {
+  margin-bottom: 20px;
+  max-width: 120px;
+}
+
+.social-icons {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+  display: flex;
+}
+
+.social-icons li {
+  margin-right: 15px;
+}
+
+.social-icons a {
+  color: var(--text-light);
+  font-size: 18px;
+}
+
+.social-icons a:hover {
+  color: var(--color-primary);
+}
+
+.footer-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-menu li {
+  margin-bottom: 10px;
+}
+
+.footer-menu a {
+  color: var(--text-footer);
+  text-decoration: none;
+}
+
+.footer-menu a:hover {
+  color: var(--text-light);
+}
+
+.footer-column p i {
+  margin-right: 10px;
+  color: var(--color-primary);
+}
+
+.footer-copyright {
+  background-color: var(--bg-dark-1);
+  padding: 20px 0;
+  text-align: center;
+  font-size: 13px;
+}
+
+.footer-copyright strong {
+  color: var(--text-light);
+}
+
+/* --- Back To Top Styles --- */
+
+.tbay-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s, visibility 0.4s;
+}
+
+.tbay-to-top.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.more-to-top {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.more-to-top>div {
+  background-color: var(--bg-dark-2);
+  margin-bottom: 5px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.more-to-top a {
+  color: var(--text-light);
+  font-size: 18px;
+  position: relative;
+}
+
+.mini-cart-items-fixed {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: var(--color-primary);
+  color: var(--bg-dark-2);
+  border-radius: 50%;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+
+#back-to-top {
+  background-color: var(--color-primary);
+  color: var(--bg-dark-2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Page transition for main content --- */
+.page-transition {
+  animation: page-fade-in 0.35s ease-out;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Combo Banner Styles --- */
+.combo-banner-container {
+  background-color: var(--bg-light);
+  padding: 2rem 0;
+}

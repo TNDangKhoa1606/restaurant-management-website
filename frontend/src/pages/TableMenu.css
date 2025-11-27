@@ -1,0 +1,150 @@
+/* d:/my-app/frontend/src/pages/TableMenu.css */
+
+/* Tái sử dụng một số style từ Menu.css */
+@import url('./Menu.css');
+
+.table-menu-page {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.table-menu-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+}
+
+.menu-selection-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* Cột bên phải: Tóm tắt đơn hàng */
+.order-summary-panel {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 40px;
+    height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+}
+
+.order-summary-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--bg-light-hover);
+}
+
+.order-summary-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-dark);
+}
+
+.order-summary-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.order-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    padding: 50px 0;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--bg-light-hover);
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-item-details {
+    flex-grow: 1;
+}
+
+.order-item-name {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.order-item-price {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.order-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-qty-small {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-light-hover);
+    cursor: pointer;
+    font-size: 1.1rem;
+    border-radius: 50%;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-summary-footer {
+    padding: 20px;
+    border-top: 2px solid var(--bg-light-hover);
+    background-color: #fdfdfd;
+}
+
+.btn-submit-order {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--color-primary);
+    color: var(--text-light);
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-submit-order:hover {
+    background-color: var(--color-primary-hover);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .table-menu-container {
+        grid-template-columns: 1.5fr 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .table-menu-container {
+        grid-template-columns: 1fr;
+    }
+    .order-summary-panel {
+        position: static;
+        height: auto;
+        margin-top: 30px;
+    }
+}

@@ -1,0 +1,148 @@
+.app-toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.app-toast {
+  min-width: 260px;
+  max-width: 360px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
+  background: #111827;
+  color: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  animation: app-toast-slide-in 0.25s ease-out;
+}
+
+.app-toast-info {
+  border-left: 4px solid #3b82f6;
+}
+
+.app-toast-success {
+  border-left: 4px solid #10b981;
+}
+
+.app-toast-error {
+  border-left: 4px solid #ef4444;
+}
+
+.app-toast-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.app-toast-message {
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+.app-toast-close {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.app-toast-close:hover {
+  color: #f9fafb;
+}
+
+@keyframes app-toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(120%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Confirm modal */
+.app-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+}
+
+.app-confirm-modal {
+  width: 100%;
+  max-width: 420px;
+  background: #0f172a;
+  color: #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.6);
+}
+
+.app-confirm-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.app-confirm-message {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  margin-bottom: 1.25rem;
+}
+
+.app-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.app-confirm-btn {
+  min-width: 90px;
+  padding: 0.4rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.app-confirm-btn:active {
+  transform: translateY(1px);
+}
+
+.app-confirm-btn-cancel {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+.app-confirm-btn-cancel:hover {
+  background: #1f2937;
+}
+
+.app-confirm-btn-confirm {
+  background: #3b82f6;
+  color: white;
+}
+
+.app-confirm-btn-confirm:hover {
+  background: #2563eb;
+}
+
+.app-confirm-btn-danger {
+  background: #ef4444;
+}
+
+.app-confirm-btn-danger:hover {
+  background: #dc2626;
+}

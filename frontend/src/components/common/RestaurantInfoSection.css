@@ -1,0 +1,47 @@
+.restaurant-info-section {
+    padding-top: 60px;
+    padding-bottom: 60px;
+    background-color: var(--bg-light);
+}
+
+.restaurant-info-section .col-inner p {
+    color: var(--text-muted);
+}
+
+.restaurant-info-section .col-inner strong {
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.img-wrapper {
+    overflow: hidden;
+    border-radius: 8px;
+    height: 450px; /* Đặt chiều cao cố định cho ảnh */
+}
+
+.img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Đảm bảo ảnh lấp đầy khung mà không bị méo */
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.img-wrapper:hover img {
+    transform: scale(1.1);
+}
+
+.button-outline-dark {
+    border: 2px solid var(--text-dark);
+    color: var(--text-dark);
+    padding: 10px 25px;
+    border-radius: 5px;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.button-outline-dark:hover {
+    background-color: var(--text-dark);
+    color: var(--text-light);
+}

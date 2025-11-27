@@ -1,0 +1,22 @@
+# Dependencies
+/node_modules
+
+# Environment variables
+# Rất quan trọng: Không bao giờ đưa các tệp .env lên Git.
+# Chúng chứa các thông tin nhạy cảm như khóa bí mật, mật khẩu database.
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Payment artifacts
+uploads/payments
+uploads/payment-proofs

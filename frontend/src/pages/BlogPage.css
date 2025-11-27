@@ -1,0 +1,152 @@
+.blog-page-wrapper {
+    padding: 40px 0;
+    background-color: var(--bg-light);
+}
+
+.blog-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 0 15px;
+}
+
+.main-content-column {
+    flex: 1;
+    min-width: 0; /* Cho phép flex-shrink hoạt động đúng */
+}
+
+.sidebar-column {
+    flex-basis: 300px; /* Chiều rộng cố định cho sidebar */
+    flex-shrink: 0;
+}
+
+.posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.post-item-inner {
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-radius: 5px;
+    transition: box-shadow 0.3s ease;
+}
+
+.post-item-inner:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.post-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.post-box {
+    display: flex;
+    position: relative;
+}
+
+.post-image {
+    width: 40%;
+    flex-shrink: 0;
+}
+
+.image-cover {
+    padding-top: 60%; /* Tỷ lệ ảnh */
+    background-size: cover;
+    background-position: center;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.post-text {
+    padding: 25px 30px;
+    flex-grow: 1;
+}
+
+.post-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.divider {
+    height: 2px;
+    width: 30px;
+    background-color: var(--color-primary);
+    margin-bottom: 15px;
+}
+
+.post-excerpt {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.post-date-badge {
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background-color: var(--color-primary);
+    color: var(--bg-dark-2);
+    text-align: center;
+    padding: 8px;
+    border-radius: 4px;
+    line-height: 1.1;
+}
+
+.post-date-badge .day {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: block;
+}
+
+.post-date-badge .month {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+/* --- Sidebar --- */
+.widget {
+    margin-bottom: 30px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.widget-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.widget .divider.small {
+    margin-top: 8px;
+    margin-bottom: 15px;
+}
+
+.widget ul {
+    list-style: none;
+    padding: 0;
+}
+
+.widget ul li {
+    margin-bottom: 10px;
+}
+
+.widget ul li a {
+    text-decoration: none;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.widget ul li a:hover {
+    color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+    .blog-container {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,285 @@
+/* --- General Layout --- */
+.table-map-container {
+    padding: 20px;
+    background-color: #f4f7f6;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.map-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.table-map-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: #34495e;
+}
+
+/* --- Segmented Control (Floor/View Switcher) --- */
+.segment {
+    display: flex;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.seg-btn {
+    padding: 8px 16px;
+    border: none;
+    background-color: transparent;
+    color: #495057;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border-radius: 6px;
+}
+
+.seg-btn.active {
+    background-color: #fff;
+    color: var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Legend --- */
+.legend {
+    display: flex;
+    gap: 20px;
+}
+
+.legend-item {
+    position: relative;
+    padding-left: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #555;
+}
+
+.legend-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.legend-vacant::before { background-color: #bdc3c7; }
+.legend-occupied::before { background-color: #f39c12; }
+.legend-checked::before { background-color: #9b59b6; }
+
+/* --- Floor Plan Area --- */
+.floor-plan-area {
+    position: relative;
+    width: 100%;
+    flex-grow: 1;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #dee2e6;
+    overflow: hidden; /* To contain absolutely positioned children */
+    aspect-ratio: 16 / 9; /* Giữ tỷ lệ khung cố định, tránh chồng chéo khi co giãn */
+}
+
+.floor-plan-area.reposition-mode {
+    cursor: grab;
+    border-style: dashed;
+    border-color: #74b9ff;
+}
+
+.floor-plan-area.reposition-mode.dragging {
+    cursor: grabbing;
+}
+
+/* --- Static Elements (Entrance, Stage, etc.) --- */
+.static-element {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background-color: #e9ecef;
+    border: 2px dashed #adb5bd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    text-align: center;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+/* --- Table Nodes --- */
+.node {
+    position: absolute;
+    transform: translate(-50%, -50%); /* lấy toạ độ làm tâm, dễ canh thẳng hàng */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    cursor: pointer;
+    box-sizing: border-box;
+    /* không padding để kích thước chuẩn theo shape */
+}
+
+.node.draggable-node {
+    cursor: grab;
+}
+
+.floor-plan-area.reposition-mode .node,
+.floor-plan-area.reposition-mode .node.admin-editable {
+    /* Khi đang sắp xếp, chỉ animate opacity, không animate transform/box-shadow để tránh giật */
+    transition: opacity 0.15s ease;
+}
+
+.floor-plan-area.reposition-mode .node:hover,
+.floor-plan-area.reposition-mode .node.admin-editable:hover {
+    /* Giữ nguyên transform translate(-50%, -50%), không phóng to khi hover trong lúc kéo */
+    transform: translate(-50%, -50%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.floor-plan-area.dragging .node.draggable-node.dragging,
+.node.draggable-node.dragging {
+    cursor: grabbing;
+    opacity: 0.85;
+    box-shadow: 0 8px 18px rgba(52, 152, 219, 0.5);
+}
+
+.node.drag-saving::after {
+    content: 'Đang lưu...';
+    position: absolute;
+    bottom: -24px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #0984e3;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.node:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Node dùng cho khách chọn bàn */
+.selectable-node {
+    cursor: pointer;
+}
+
+.disabled-node {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.disabled-node:hover {
+    transform: translate(-50%, -50%); /* giữ nguyên, không phóng to khi hover */
+    box-shadow: none;
+}
+
+.node-selected {
+    outline: 3px solid #ffffff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px #3498db;
+}
+
+/* Table Shapes */
+.shape-duo { /* Bàn 2 người: tròn, theo % để responsive */
+    width: 7.5%;
+    aspect-ratio: 1 / 1;
+    border-radius: 999px;
+}
+
+.shape-mid { /* Bàn 4-6 người: chữ nhật vừa */
+    width: 12.5%;
+    aspect-ratio: 5 / 4;
+    border-radius: 10px;
+}
+
+.shape-large { /* Bàn 6-12 người: chữ nhật dài */
+    width: 18%;
+    aspect-ratio: 7 / 3;
+    border-radius: 10px;
+}
+
+/* Table Status Colors */
+.st-vacant { background-color: #e9ecef; border: 2px solid #adb5bd; color: #2c3e50; }
+.st-occupied { background-color: #f39c12; border: 2px solid #e67e22; }
+.st-checked { background-color: #9b59b6; border: 2px solid #8e44ad; }
+
+/* Table Label and Capacity */
+.node-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+}
+
+.node-code {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.node-capacity-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.node-capacity {
+    font-weight: 600;
+}
+
+/* --- Admin Specific Styles --- */
+.node.admin-editable {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.node.admin-editable:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
+}
+
+.reposition-hint {
+    margin: -10px 0 15px;
+    color: #0984e3;
+    font-weight: 500;
+}
+
+.node.merge-selectable:hover {
+    outline: 3px solid #f1c40f;
+    outline-offset: 2px;
+}
+
+.node.selected-for-merge {
+    outline: 3px solid #e74c3c;
+    outline-offset: 2px;
+    transform: scale(1.1);
+}
+
+.node.node-selected {
+    background-color: #2ecc71;
+    border-color: #27ae60;
+    color: #ffffff;
+}

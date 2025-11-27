@@ -1,0 +1,296 @@
+.checkout-page {
+    background-color: #f8f9fa;
+    padding: 80px 0;
+}
+
+.checkout-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 40px;
+    padding: 0 15px;
+}
+
+/* Cột trái: Form */
+.checkout-form-section {
+    flex: 1 1 60%;
+}
+
+.checkout-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: var(--text-dark);
+}
+
+.checkout-form .form-group {
+    margin-bottom: 20px;
+}
+
+.checkout-form label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.order-type-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.order-type-options label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.order-type-options input[type="radio"] {
+    margin: 0;
+}
+
+.order-type-options span {
+    display: inline-block;
+}
+
+.checkout-form input,
+.checkout-form textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.checkout-form input:focus,
+.checkout-form textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
+}
+
+/* Phần phương thức thanh toán */
+.payment-method-section {
+    margin-top: 40px;
+}
+
+.payment-method-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.payment-method-section p {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.payment-option.active {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+}
+
+.payment-option.coming-soon {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.payment-option img {
+    height: 24px;
+    margin-right: 15px;
+}
+
+.payment-option i {
+    font-size: 24px;
+    margin-right: 15px;
+    color: var(--color-primary);
+}
+
+/* Cột phải: Tóm tắt đơn hàng */
+.order-summary-section {
+    flex: 1 1 40%;
+    background-color: var(--bg-light);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    align-self: flex-start; /* Giữ cho cột này không bị kéo dài */
+}
+
+.order-summary-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-items {
+    margin-bottom: 20px;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.summary-item-qty {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.summary-item-name {
+    flex-grow: 1;
+    font-weight: 500;
+}
+
+.summary-item-price {
+    font-weight: 600;
+}
+
+.summary-empty {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--text-muted);
+}
+
+.btn-back-to-menu {
+    margin-top: 15px;
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--color-primary);
+    color: var(--bg-dark-2);
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.summary-total {
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.summary-total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.summary-total-row.grand-total {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.summary-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    align-items: center;
+}
+
+.btn-edit-preorder {
+    border: none;
+    background: linear-gradient(135deg, var(--color-primary), #ffb347);
+    color: var(--text-light);
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 10px 24px rgba(255, 193, 7, 0.35);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.btn-edit-preorder:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 14px 28px rgba(255, 193, 7, 0.45);
+}
+
+.btn-edit-preorder::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-edit-preorder svg {
+    width: 22px;
+    height: 22px;
+    z-index: 1;
+}
+
+.btn-confirm-order {
+    width: 100%;
+    padding: 18px;
+    margin-top: 0;
+    background-color: var(--color-primary);
+    color: var(--text-light);
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    min-height: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.summary-actions .btn-confirm-order {
+    flex: 1;
+    width: auto;
+}
+
+.btn-confirm-order:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.btn-cancel-order {
+    margin-top: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-cancel-order:hover {
+    background-color: #f1f3f5;
+    color: var(--text-dark);
+}

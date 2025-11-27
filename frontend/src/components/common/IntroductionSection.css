@@ -1,0 +1,62 @@
+.intro-section {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background-color: var(--bg-light);
+    color: var(--text-muted);
+}
+
+.intro-section h3 {
+    font-family: 'Times New Roman', serif;
+}
+
+.intro-section strong {
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.intro-banner {
+    position: relative;
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.3s ease;
+}
+
+.intro-banner:hover {
+    transform: scale(1.05);
+}
+
+.banner-combo {
+    background-image: url(https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1);
+}
+
+.banner-goi-mon {
+    background-image: url(https://images.pexels.com/photos/2403392/pexels-photo-2403392.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1);
+}
+
+.banner-link-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.banner-text-box {
+    width: 80%;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.banner-text-box .button {
+    background-color: var(--color-secondary);
+    color: var(--text-light);
+    padding: 1rem 1.5rem;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+}
