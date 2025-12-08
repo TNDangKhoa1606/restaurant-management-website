@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const sendEmail = require('../utils/sendEmail');
 const { emitReservationsUpdateForUser } = require('../socket');
+const { sendReservationNotification } = require('../services/notificationService');
 
 const PREORDER_NOTE_REGEX = /Pre-order cho đặt bàn\s*#(\d+)/i;
 
@@ -850,7 +851,12 @@ const updateReservationStatus = async (req, res) => {
 
         await connection.commit();
 
+        // Gửi thông báo cho khách hàng
         if (userId) {
+            sendReservationNotification(id, status).catch(err => {
+                console.error('Send reservation notification error:', err);
+            });
+
             try {
                 await emitReservationsUpdateForUser(userId);
             } catch (error) {

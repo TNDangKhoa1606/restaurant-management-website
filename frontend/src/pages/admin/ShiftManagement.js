@@ -68,9 +68,9 @@ function ShiftManagement() {
             <div className="admin-page-header">
                 <h2 className="admin-page-title">Quản lý ca làm việc</h2>
                 <div className="filters">
-                    <input 
-                        type="date" 
-                        className="date-filter" 
+                    <input
+                        type="date"
+                        className="date-filter"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                     />
@@ -84,76 +84,80 @@ function ShiftManagement() {
             {error && <div className="alert alert-danger">{error}</div>}
 
             {!loading && !error && (
-            <div className="admin-table-container">
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Tên ca</th>
-                            <th>Thời gian</th>
-                            <th>Nhân viên</th>
-                            <th>Ghi chú</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {shifts.length > 0 ? paginatedShifts.map(shift => (
-                            <tr key={shift.shift_id}>
-                                <td>{shift.shift_name}</td>
-                                <td>{shift.start_time} - {shift.end_time}</td>
-                                <td className="employee-avatar-group">
-                                    {shift.employees && shift.employees.map(emp => (
-                                        <img 
-                                            key={emp.employee_id} 
-                                            src={emp.avatar_url || `https://i.pravatar.cc/150?u=${emp.employee_id}`} 
-                                            alt={emp.employee_name} 
-                                            title={emp.employee_name} 
-                                        />
-                                    ))}
-                                </td>
-                                <td>{shift.notes || 'Không có'}</td>
-                                <td className="actions-cell">
-                                    <button onClick={() => handleAction('Sửa', shift.shift_id)} className="action-btn btn-edit">Sửa</button>
-                                    <button onClick={() => handleAction('Xóa', shift.shift_id)} className="action-btn btn-delete">Xóa</button>
-                                </td>
-                            </tr>
-                        )) : (
+                <div className="admin-table-container">
+                    <table className="admin-table">
+                        <thead>
                             <tr>
-                                <td colSpan="5" style={{ textAlign: 'center' }}>Không có ca làm việc nào cho ngày đã chọn.</td>
+                                <th>Tên ca</th>
+                                <th>Thời gian</th>
+                                <th>Nhân viên</th>
+                                <th>Ghi chú</th>
+                                <th>Hành động</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
-                {shifts.length > 0 && (
-                    <div className="admin-pagination">
-                        <div className="admin-pagination-info">
-                            Hiển thị {startIndex + 1}-{Math.min(startIndex + pageSize, totalItems)} trên {totalItems} kết quả
-                        </div>
-                        <div className="admin-pagination-controls">
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={safeCurrentPage === 1}
-                            >
-                                Trước
-                            </button>
-                            {Array.from({ length: totalPages }, (_, index) => (
+                        </thead>
+                        <tbody>
+                            {shifts.length > 0 ? paginatedShifts.map(shift => (
+                                <tr key={shift.shift_id}>
+                                    <td>{shift.shift_name}</td>
+                                    <td>{shift.start_time} - {shift.end_time}</td>
+                                    <td className="employee-avatar-group">
+                                        {shift.employees && shift.employees.map(emp => (
+                                            <img
+                                                key={emp.employee_id}
+                                                src={emp.avatar_url || `https://i.pravatar.cc/150?u=${emp.employee_id}`}
+                                                alt={emp.employee_name}
+                                                title={emp.employee_name}
+                                            />
+                                        ))}
+                                    </td>
+                                    <td>{shift.notes || 'Không có'}</td>
+                                    <td className="actions-cell">
+                                        <button onClick={() => handleAction('Sửa', shift.shift_id)} className="action-btn btn-edit" data-tooltip="Sửa" title="Sửa">
+                                            ✏️
+                                        </button>
+                                        <button onClick={() => handleAction('Xóa', shift.shift_id)} className="action-btn btn-delete" data-tooltip="Xóa" title="Xóa">
+                                            🗑️
+                                        </button>
+                                    </td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan="5" style={{ textAlign: 'center' }}>Không có ca làm việc nào cho ngày đã chọn.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                    {shifts.length > 0 && (
+                        <div className="admin-pagination">
+                            <div className="admin-pagination-info">
+                                Hiển thị {startIndex + 1}-{Math.min(startIndex + pageSize, totalItems)} trên {totalItems} kết quả
+                            </div>
+                            <div className="admin-pagination-controls">
                                 <button
-                                    key={index + 1}
-                                    onClick={() => setCurrentPage(index + 1)}
-                                    className={safeCurrentPage === index + 1 ? 'active' : ''}
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={safeCurrentPage === 1}
                                 >
-                                    {index + 1}
+                                    Trước
                                 </button>
-                            ))}
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={safeCurrentPage === totalPages}
-                            >
-                                Sau
-                            </button>
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <button
+                                        key={index + 1}
+                                        onClick={() => setCurrentPage(index + 1)}
+                                        className={safeCurrentPage === index + 1 ? 'active' : ''}
+                                    >
+                                        {index + 1}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={safeCurrentPage === totalPages}
+                                >
+                                    Sau
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
             )}
         </div>
     );

@@ -60,7 +60,7 @@ function CustomerManagement() {
                     setLoading(false);
                 }
             };
-            
+
             if (!authLoading && token) {
                 fetchCustomers();
             } else if (!authLoading && !token) {
@@ -76,8 +76,33 @@ function CustomerManagement() {
         setCurrentPage(1);
     }, [searchTerm, tagFilter]);
 
-    const handleAction = (action, customerId) => {
-        notify(`Thực hiện: ${action} cho khách hàng ID ${customerId}`, 'info');
+    const handleSendPromotion = async (customerId, customerName) => {
+        const confirmed = await confirm({
+            title: 'Gửi ưu đãi',
+            message: `Gửi thông báo ưu đãi đến khách hàng "${customerName}"?`,
+            confirmText: 'Gửi',
+            cancelText: 'Hủy',
+            variant: 'default',
+        });
+
+        if (!confirmed) return;
+
+        try {
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+
+            // Tạo notification trực tiếp cho khách hàng này
+            await axios.post('/api/notifications/send-to-user', {
+                userId: customerId,
+                type: 'promotion',
+                title: '🎁 Ưu đãi dành riêng cho bạn!',
+                message: 'Cảm ơn bạn đã là khách hàng thân thiết. Nhận ngay ưu đãi đặc biệt khi đặt bàn trong tuần này!',
+            }, config);
+
+            notify(`Đã gửi ưu đãi cho ${customerName}!`, 'success');
+        } catch (err) {
+            console.error('Send promotion error:', err);
+            notify('Không thể gửi ưu đãi. Vui lòng thử lại.', 'error');
+        }
     };
 
     const handleViewHistory = (customerId) => {
@@ -133,9 +158,9 @@ function CustomerManagement() {
             <div className="admin-page-header">
                 <h2 className="admin-page-title">Quản lý Khách hàng</h2>
                 <div className="filters">
-                    <input 
-                        type="text" 
-                        placeholder="Tìm theo tên, email, SĐT..." 
+                    <input
+                        type="text"
+                        placeholder="Tìm theo tên, email, SĐT..."
                         className="search-input"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -174,9 +199,15 @@ function CustomerManagement() {
                                     <td>{formatPrice(customer.totalSpent)}</td>
                                     <td><span className={`status-badge ${tagInfo.className}`}>{tagInfo.text}</span></td>
                                     <td className="actions-cell">
-                                        <button onClick={() => handleViewHistory(customer.id)} className="action-btn btn-edit">Lịch sử</button>
-                                        <button onClick={() => handleAction('Gửi ưu đãi', customer.id)} className="action-btn btn-confirm">Gửi ưu đãi</button>
-                                        <button onClick={() => handleDelete(customer.id)} className="action-btn btn-delete">Xóa</button>
+                                        <button onClick={() => handleViewHistory(customer.id)} className="action-btn btn-edit" data-tooltip="Lịch sử" title="Lịch sử">
+                                            📊
+                                        </button>
+                                        <button onClick={() => handleSendPromotion(customer.id, customer.name)} className="action-btn btn-confirm" data-tooltip="Gửi ưu đãi" title="Gửi ưu đãi">
+                                            🎁
+                                        </button>
+                                        <button onClick={() => handleDelete(customer.id)} className="action-btn btn-delete" data-tooltip="Xóa" title="Xóa">
+                                            🗑️
+                                        </button>
                                     </td>
                                 </tr>
                             );

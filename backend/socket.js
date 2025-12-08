@@ -4,6 +4,9 @@ const db = require('./config/db');
 
 let ioInstance = null;
 
+// Getter để notificationService có thể lấy io instance
+const getIoInstance = () => ioInstance;
+
 const PREORDER_NOTE_REGEX = /Pre-order cho đặt bàn\s*#(\d+)/i;
 
 const parseReservationIdFromNote = (note) => {
@@ -254,6 +257,10 @@ const initSocket = (server) => {
         const roomName = `user:${socket.userId}`;
         socket.join(roomName);
 
+        // Đăng ký room cho notification realtime
+        const notifRoom = `user_${socket.userId}`;
+        socket.join(notifRoom);
+
         socket.on('reservations:subscribe', async () => {
             console.log('[Socket] reservations:subscribe from userId:', socket.userId);
             try {
@@ -385,4 +392,5 @@ const emitReservationsUpdateForUser = async (userId) => {
 module.exports = {
     initSocket,
     emitReservationsUpdateForUser,
+    getIoInstance,
 };

@@ -274,7 +274,8 @@
 }
 
 .admin-table-container {
-    overflow-x: auto; /* Bảng tự động cuộn ngang nếu quá rộng */
+    overflow-x: auto;
+    /* Bảng tự động cuộn ngang nếu quá rộng */
 }
 
 .admin-table {
@@ -282,7 +283,8 @@
     border-collapse: collapse;
 }
 
-.admin-table th, .admin-table td {
+.admin-table th,
+.admin-table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid var(--admin-border);
@@ -345,7 +347,8 @@
 }
 
 .actions-cell {
-    white-space: nowrap; /* Ngăn các nút hành động xuống dòng */
+    white-space: nowrap;
+    /* Ngăn các nút hành động xuống dòng */
 }
 
 /* --- Styles cho trang Phân quyền --- */
@@ -353,7 +356,8 @@
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: var(--admin-shadow);
-    overflow: hidden; /* To keep border-radius */
+    overflow: hidden;
+    /* To keep border-radius */
 }
 
 .role-permissions-grid {
@@ -458,7 +462,8 @@
     border-radius: 50%;
     border: 2px solid white;
     object-fit: cover;
-    margin-left: -10px; /* Hiệu ứng chồng lên nhau */
+    margin-left: -10px;
+    /* Hiệu ứng chồng lên nhau */
     transition: transform 0.2s;
 }
 
@@ -472,21 +477,109 @@
 }
 
 .action-btn {
-    padding: 5px 10px;
-    border-radius: 5px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 6px;
     border: none;
     cursor: pointer;
-    font-size: 13px;
-    margin-right: 5px;
+    font-size: 16px;
+    margin-right: 8px;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: all 0.15s ease;
+    white-space: nowrap;
 }
 
-.btn-edit { background-color: #e0e7ff; color: #4338ca; }
-.btn-edit:hover { background-color: #c7d2fe; }
+.action-btn:last-child {
+    margin-right: 0;
+}
 
-.btn-delete { background-color: #fee2e2; color: #b91c1c; }
-.btn-delete:hover { background-color: #fecaca; }
+/* Tooltip */
+.action-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0s, transform 0s;
+    z-index: 1000;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-2px);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0s;
+    z-index: 1000;
+}
+
+.action-btn:hover::after,
+.action-btn:hover::before {
+    opacity: 1;
+}
+
+.btn-edit {
+    background-color: #e0e7ff;
+    color: #4338ca;
+}
+
+.btn-edit:hover {
+    background-color: #c7d2fe;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(67, 56, 202, 0.2);
+}
+
+.btn-delete {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.btn-delete:hover {
+    background-color: #fecaca;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(185, 28, 28, 0.2);
+}
+
+.btn-confirm {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.btn-confirm:hover {
+    background-color: #bbf7d0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(22, 163, 74, 0.2);
+}
+
+.btn-view {
+    background-color: #e0f2fe;
+    color: #0284c7;
+}
+
+.btn-view:hover {
+    background-color: #bae6fd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(2, 132, 199, 0.2);
+}
 
 /* --- Styles for Menu Management --- */
 .menu-item-image {
@@ -498,8 +591,10 @@
 
 /* --- Styles for Inventory Management --- */
 .low-stock-warning {
-    background-color: #fff5f5 !important; /* Nền màu đỏ nhạt */
-    color: #c53030; /* Chữ màu đỏ đậm */
+    background-color: #fff5f5 !important;
+    /* Nền màu đỏ nhạt */
+    color: #c53030;
+    /* Chữ màu đỏ đậm */
     font-weight: 600;
 }
 
@@ -528,12 +623,14 @@
 }
 
 .table-card.status-available {
-    border-left-color: #28a745; /* Green */
+    border-left-color: #28a745;
+    /* Green */
     background-color: #f6fff8;
 }
 
 .table-card.status-occupied {
-    border-left-color: #ffc107; /* Amber */
+    border-left-color: #ffc107;
+    /* Amber */
     background-color: #fffbeb;
 }
 
@@ -543,8 +640,13 @@
     margin-bottom: 10px;
 }
 
-.status-available .table-card-icon svg { color: #28a745; }
-.status-occupied .table-card-icon svg { color: #ffc107; }
+.status-available .table-card-icon svg {
+    color: #28a745;
+}
+
+.status-occupied .table-card-icon svg {
+    color: #ffc107;
+}
 
 .table-card-name {
     font-size: 16px;
@@ -558,8 +660,13 @@
     font-weight: 500;
 }
 
-.status-available .table-card-status { color: #28a745; }
-.status-occupied .table-card-status { color: #b58900; }
+.status-available .table-card-status {
+    color: #28a745;
+}
+
+.status-occupied .table-card-status {
+    color: #b58900;
+}
 
 
 /* --- Styles cho Form Quản trị (Tạo tài khoản, etc.) --- */
@@ -585,7 +692,8 @@
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px 30px; /* row-gap column-gap */
+    gap: 20px 30px;
+    /* row-gap column-gap */
 }
 
 .form-group {
@@ -594,7 +702,8 @@
 }
 
 .form-group-full {
-    grid-column: 1 / -1; /* Span full width */
+    grid-column: 1 / -1;
+    /* Span full width */
 }
 
 .form-group label {
@@ -672,13 +781,19 @@
     background-color: var(--admin-primary);
     color: var(--admin-text-light);
 }
-.btn-admin-primary:hover { background-color: var(--admin-primary-hover); }
+
+.btn-admin-primary:hover {
+    background-color: var(--admin-primary-hover);
+}
 
 .btn-admin-secondary {
     background-color: #e0e0e0;
     color: #555;
 }
-.btn-admin-secondary:hover { background-color: #d1d1d1; }
+
+.btn-admin-secondary:hover {
+    background-color: #d1d1d1;
+}
 
 .admin-pagination {
     display: flex;

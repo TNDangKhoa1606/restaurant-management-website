@@ -1,0 +1,223 @@
+.notification-page {
+    padding: 25px 0;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 22px;
+}
+
+.mark-all-read-btn {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #1e1e1e;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mark-all-read-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+}
+
+.notification-loading,
+.notification-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.notification-empty .empty-icon {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.notification-empty p {
+    font-size: 16px;
+    margin: 0;
+}
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 18px;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.notification-item:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transform: translateX(5px);
+}
+
+.notification-item.unread {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3cd 100%);
+    border-left: 4px solid #ffc107;
+}
+
+.notification-item.read {
+    opacity: 0.85;
+}
+
+.notification-icon {
+    font-size: 28px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.notification-item.unread .notification-icon {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    margin: 0 0 6px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.notification-message {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: #999;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.action-btn.read-btn {
+    background: #d4edda;
+    color: #28a745;
+}
+
+.action-btn.read-btn:hover {
+    background: #28a745;
+    color: #fff;
+}
+
+.action-btn.delete-btn {
+    background: #f8d7da;
+    color: #dc3545;
+}
+
+.action-btn.delete-btn:hover {
+    background: #dc3545;
+    color: #fff;
+}
+
+.notification-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.notification-pagination button {
+    padding: 8px 18px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.notification-pagination button:hover:not(:disabled) {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #1e1e1e;
+}
+
+.notification-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.notification-pagination span {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notification-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .notification-item {
+        padding: 12px;
+    }
+
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 22px;
+    }
+
+    .notification-actions {
+        flex-direction: column;
+    }
+}

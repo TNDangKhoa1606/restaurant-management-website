@@ -19,8 +19,8 @@ import MenuPage from './pages/MenuPage';
 import BlogPage from './pages/BlogPage';
 import ContactPage from './pages/ContactPage';
 import AboutPage from './pages/ServicesPage'; // Sửa lại đường dẫn import cho đúng
-import blogBannerImage from './assets/images/banner-.jpg'; 
-import contactBannerImage from './assets/images/banner-02.jpg'; 
+import blogBannerImage from './assets/images/banner-.jpg';
+import contactBannerImage from './assets/images/banner-02.jpg';
 import BackToTop from './components/common/BackToTop';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -31,6 +31,7 @@ import ReservationHistory from './pages/profile/ReservationHistory';
 import ProfileInfo from './pages/profile/ProfileInfo';
 import AddressBook from './pages/profile/AddressBook'; // Import component mới
 import ChangePassword from './pages/profile/ChangePassword'; // Import component mới
+import NotificationPage from './pages/profile/NotificationPage'; // Import notification page
 import TableMenu from './pages/TableMenu';
 import DashboardLayout from './layouts/DashboardLayout'; // Import layout chung mới
 import TableMap from './pages/staff/serve/TableMap'; // Sửa đường dẫn import
@@ -50,6 +51,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage'; // Thêm trang đặt
 import GoogleAuthHandler from './pages/GoogleAuthHandler'; // Thêm trang xử lý Google Auth
 import InternalLogin from './pages/InternalLogin'; // Import trang đăng nhập nội bộ
 import CustomerHistory from './pages/admin/CustomerHistory';
+import SendPromotion from './pages/admin/SendPromotion';
 import PaymentResult from './pages/PaymentResult';
 import profileBannerImage from './assets/images/slider-1.jpg';
 
@@ -121,34 +123,34 @@ const MainLayout = ({ cartItems, onCartOpen }) => {
 
     switch (path) {
       case '/menu':
-        return { 
-          title: 'Thực Đơn', 
-          image: 'https://images.pexels.com/photos/2347311/pexels-photo-2347311.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1' 
+        return {
+          title: 'Thực Đơn',
+          image: 'https://images.pexels.com/photos/2347311/pexels-photo-2347311.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1'
         };
       case '/reservation':
-        return { 
-          title: 'Đặt Bàn', 
-          image: 'https://images.pexels.com/photos/262047/pexels-photo-262047.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1' 
+        return {
+          title: 'Đặt Bàn',
+          image: 'https://images.pexels.com/photos/262047/pexels-photo-262047.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1'
         };
       case '/reservation-payment':
-        return { 
-          title: 'Thanh toán đặt bàn', 
-          image: 'https://images.pexels.com/photos/5419233/pexels-photo-5419233.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1' 
+        return {
+          title: 'Thanh toán đặt bàn',
+          image: 'https://images.pexels.com/photos/5419233/pexels-photo-5419233.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1'
         };
       case '/about':
-        return { 
-          title: 'Giới Thiệu', 
-          image: 'https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1' 
+        return {
+          title: 'Giới Thiệu',
+          image: 'https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1'
         };
       case '/blog':
-        return { 
-          title: 'Bài Viết', 
-          image: blogBannerImage 
+        return {
+          title: 'Bài Viết',
+          image: blogBannerImage
         };
       case '/contact':
-        return { 
-          title: 'Liên Hệ', 
-          image: contactBannerImage 
+        return {
+          title: 'Liên Hệ',
+          image: contactBannerImage
         };
       default:
         return { title: '', image: '' };
@@ -199,6 +201,7 @@ const adminConfig = {
     { to: '/admin/shifts', text: 'Quản lý Ca làm', allowedRoles: ['admin'] }, // Con người
     { to: '/admin/permissions', text: 'Phân quyền', allowedRoles: ['admin'] }, // Hệ thống
     { to: '/admin/create-account', text: 'Tạo tài khoản', allowedRoles: ['admin'] }, // Hệ thống
+    { to: '/admin/send-promotion', text: 'Gửi khuyến mãi', allowedRoles: ['admin'] }, // Marketing
     { to: '/admin/reports', text: 'Thống kê doanh số', allowedRoles: ['admin'] },
   ],
   pageTitles: {
@@ -215,6 +218,7 @@ const adminConfig = {
     '/admin/reservations': 'Quản lý Đặt bàn',
     '/admin/inventory': 'Quản lý kho',
     '/admin/reports': 'Thống kê doanh số',
+    '/admin/send-promotion': 'Gửi khuyến mãi',
   }
 };
 
@@ -289,7 +293,7 @@ function App() {
               onClose={() => setIsCartOpen(false)}
               isOpen={isCartOpen}
             />
-            <Routes> 
+            <Routes>
               {/* Các trang không có Header/Footer */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -315,6 +319,7 @@ function App() {
                 <Route path="contact" element={<ContactPage />} />
                 <Route path="profile" element={<UserProfile />}>
                   <Route index element={<ProfileInfo />} />
+                  <Route path="notifications" element={<NotificationPage />} />
                   <Route path="reservations" element={<ReservationHistory />} />
                   <Route path="addresses" element={<AddressBook />} />
                   <Route path="change-password" element={<ChangePassword />} />
@@ -331,13 +336,14 @@ function App() {
                   <Route path="customers" element={<CustomerManagement />} />
                   <Route path="customer-history/:id" element={<CustomerHistory />} />
                   <Route path="permissions" element={<RolePermissions />} />
-                  <Route path="shifts" element={<ShiftManagement />} /> 
+                  <Route path="shifts" element={<ShiftManagement />} />
                   <Route path="tables" element={<TableMap />} />
                   <Route path="kitchen-orders" element={<KitchenOrders />} />
                   <Route path="inventory" element={<InventoryManagement />} />
                   <Route path="reports" element={<SalesReport />} />
                   <Route path="orders" element={<OrderManagement />} />
                   <Route path="reservations" element={<ReservationManagement />} />
+                  <Route path="send-promotion" element={<SendPromotion />} />
                 </Route>
               </Route>
             </Routes>

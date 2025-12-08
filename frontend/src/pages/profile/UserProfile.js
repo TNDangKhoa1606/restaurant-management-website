@@ -88,6 +88,9 @@ const UserProfile = () => {
                         <Link to="/profile" className={`nav-item ${location.pathname === '/profile' ? 'active' : ''}`}>
                             <i className="fas fa-user-circle"></i> Hồ sơ của tôi
                         </Link>
+                        <Link to="/profile/notifications" className={`nav-item ${location.pathname.startsWith('/profile/notifications') ? 'active' : ''}`}>
+                            <i className="fas fa-bell"></i> Thông báo
+                        </Link>
                         <Link to="/profile/reservations" className={`nav-item ${location.pathname.startsWith('/profile/reservations') ? 'active' : ''}`}>
                             <i className="fas fa-chair"></i> Lịch sử đặt bàn
                         </Link>

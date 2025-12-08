@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { sendOrderStatusNotification } = require('../services/notificationService');
 
 const getAllOrders = async (req, res) => {
     const { keyword, status, type } = req.query;
@@ -84,7 +85,7 @@ const getOrderById = async (req, res) => {
         const orderDetails = {
             ...orders[0],
             total_amount: parseFloat(orders[0].total_amount),
-            items: items.map(item => ({...item, unit_price: parseFloat(item.unit_price)}))
+            items: items.map(item => ({ ...item, unit_price: parseFloat(item.unit_price) }))
         };
 
         res.json(orderDetails);
@@ -284,6 +285,11 @@ const updateOrderStatus = async (req, res) => {
         }
 
         await connection.commit();
+
+        // Gửi thông báo cho khách hàng (không block response)
+        sendOrderStatusNotification(id, status).catch(err => {
+            console.error('Send order notification error:', err);
+        });
 
         res.json({ message: 'Cập nhật trạng thái đơn hàng thành công.' });
     } catch (error) {

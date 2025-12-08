@@ -16,6 +16,7 @@ const reservationRoutes = require('./routes/reservationRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const exchangeRateRoutes = require('./routes/exchangeRateRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const { autoExpireUnpaidReservations } = require('./controllers/reservationController');
 const { initSocket } = require('./socket');
 
@@ -47,6 +48,7 @@ app.use('/api/reservations', reservationRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/exchange-rate', exchangeRateRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/', (req, res) => {
     res.send('Backend server is running!');

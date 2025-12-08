@@ -91,10 +91,10 @@ function EmployeeList() {
             };
             // The API endpoint should be for updating a specific user, e.g., /api/users/:id
             const { data } = await axios.put(`/api/users/${updatedData.id}`, updatedData, config);
-            
+
             // Update the employee list with the new data
             setEmployees(employees.map(emp => emp.id === updatedData.id ? data : emp));
-            
+
             handleCloseModal();
             notify('Cập nhật thông tin nhân viên thành công!', 'success');
         } catch (err) {
@@ -149,9 +149,9 @@ function EmployeeList() {
             <div className="admin-page-header">
                 <h2 className="admin-page-title">Danh sách nhân viên</h2>
                 <div className="filters">
-                    <input 
-                        type="text" 
-                        placeholder="Tìm kiếm theo tên, email, SĐT..." 
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm theo tên, email, SĐT..."
                         className="search-input"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -195,8 +195,12 @@ function EmployeeList() {
                                     </span>
                                 </td>
                                 <td className="actions-cell">
-                                    <button onClick={() => handleEdit(emp)} className="action-btn btn-edit">Chỉnh sửa</button>
-                                    <button onClick={() => handleDelete(emp.id)} className="action-btn btn-delete">Xóa</button>
+                                    <button onClick={() => handleEdit(emp)} className="action-btn btn-edit" data-tooltip="Chỉnh sửa" title="Chỉnh sửa">
+                                        ✏️
+                                    </button>
+                                    <button onClick={() => handleDelete(emp.id)} className="action-btn btn-delete" data-tooltip="Xóa" title="Xóa">
+                                        🗑️
+                                    </button>
                                 </td>
                             </tr>
                         )) : (
