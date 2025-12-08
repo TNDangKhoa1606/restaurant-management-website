@@ -104,17 +104,77 @@ const getMyOrders = async (req, res) => {
 
     try {
         const [orders] = await db.query(
-            `SELECT order_id, placed_at, order_type, total_amount, status
+            `SELECT order_id, placed_at, order_type, total_amount, status, is_paid, payment_method
              FROM orders
-             WHERE user_id = ?
+             WHERE user_id = ? AND is_paid = 1
              ORDER BY placed_at DESC`,
             [userId]
         );
 
-        const formattedOrders = orders.map(order => ({
-            ...order,
-            total_amount: parseFloat(order.total_amount)
-        }));
+        if (!orders || orders.length === 0) {
+            return res.json([]);
+        }
+
+        const orderIds = orders.map((order) => order.order_id);
+
+        const [itemRows] = await db.query(
+            `SELECT 
+                oi.order_id,
+                oi.quantity,
+                oi.unit_price,
+                d.name AS dish_name
+             FROM orderitems oi
+             JOIN dishes d ON oi.dish_id = d.dish_id
+             WHERE oi.order_id IN (?)`,
+            [orderIds]
+        );
+
+        const itemsMap = {};
+        itemRows.forEach((row) => {
+            if (!itemsMap[row.order_id]) {
+                itemsMap[row.order_id] = [];
+            }
+            itemsMap[row.order_id].push({
+                quantity: row.quantity,
+                unit_price: row.unit_price,
+                dish_name: row.dish_name,
+            });
+        });
+
+        const [depositRows] = await db.query(
+            `SELECT deposit_order_id
+             FROM reservations
+             WHERE deposit_order_id IN (?)`,
+            [orderIds]
+        );
+
+        const depositSet = new Set();
+        depositRows.forEach((row) => {
+            if (row.deposit_order_id) {
+                depositSet.add(row.deposit_order_id);
+            }
+        });
+
+        const formattedOrders = orders.map((order) => {
+            const rawItems = itemsMap[order.order_id] || [];
+            const items = rawItems.map((item) => ({
+                ...item,
+                unit_price:
+                    item.unit_price !== null && item.unit_price !== undefined
+                        ? parseFloat(item.unit_price)
+                        : 0,
+            }));
+
+            return {
+                ...order,
+                total_amount:
+                    order.total_amount !== null && order.total_amount !== undefined
+                        ? parseFloat(order.total_amount)
+                        : 0,
+                items,
+                is_deposit_order: depositSet.has(order.order_id),
+            };
+        });
 
         res.json(formattedOrders);
     } catch (error) {

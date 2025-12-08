@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../pages/AuthContext';
+import { useCurrency } from '../../components/common/CurrencyContext';
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
@@ -8,6 +9,8 @@ const formatPrice = (price) => {
 
 function SalesReport() {
     const { token, user } = useAuth();
+    const { formatPrice } = useCurrency();
+
     const role = user?.role?.toLowerCase();
     const isAdmin = role === 'admin';
 

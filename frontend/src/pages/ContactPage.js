@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNotification } from '../components/common/NotificationContext';
 import './ContactPage.css';
 
 const ContactPage = () => {
@@ -9,6 +10,7 @@ const ContactPage = () => {
         subject: '',
         message: ''
     });
+    const { notify } = useNotification();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -17,8 +19,8 @@ const ContactPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Dữ liệu liên hệ đã gửi:", formData);
-        alert("Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.");
+        console.log('Dữ liệu liên hệ đã gửi:', formData);
+        notify('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.', 'success');
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' }); // Reset form
     };
 

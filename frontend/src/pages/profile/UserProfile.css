@@ -29,13 +29,39 @@
     margin-bottom: 20px;
 }
 
+.avatar-container {
+    position: relative;
+    width: fit-content;
+    margin: 0 auto 15px auto;
+}
+
 .sidebar-avatar {
     width: 100px;
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
-    margin: 0 auto 15px auto;
     border: 3px solid var(--color-primary);
+}
+
+.avatar-upload-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 28px;
+    height: 28px;
+    background-color: var(--color-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    border: 2px solid var(--bg-light);
+    transition: background-color 0.2s;
+}
+
+.avatar-upload-icon:hover {
+    background-color: var(--color-primary-hover);
 }
 
 .sidebar-username {
@@ -89,10 +115,6 @@
     border-radius: 12px;
     border: 1px solid var(--border-color);
     padding: 30px;
-}
-
-.content-section {
-    /* Styles for sections within the content area */
 }
 
 .content-title {
@@ -162,4 +184,108 @@
 
 .btn-save-profile:hover {
     background-color: var(--color-primary-hover);
+}
+
+.avatar-upload-section {
+    margin-bottom: 30px;
+}
+
+.avatar-preview-container {
+    position: relative;
+    width: fit-content;
+}
+
+.avatar-small {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-primary);
+}
+
+.avatar-upload-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 24px;
+    height: 24px;
+    background-color: var(--color-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    border: 2px solid var(--bg-light);
+    transition: background-color 0.2s;
+}
+
+.avatar-upload-btn:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.avatar-file-input-hidden {
+    display: none;
+}
+
+.avatar-upload-actions-mini {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar-file-name {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.btn-upload-mini {
+    padding: 6px 12px;
+    background-color: var(--color-primary);
+    color: var(--bg-dark-2);
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-upload-mini:hover {
+background-color: var(--color-primary-hover);
+}
+
+.btn-upload-mini:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.avatar-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatar-upload-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-primary);
+}
+
+.avatar-upload-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.avatar-upload-input {
+    font-size: 0.9rem;
+}
+
+.btn-upload-avatar {
+    width: fit-content;
 }

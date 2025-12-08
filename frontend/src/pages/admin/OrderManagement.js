@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../pages/AuthContext';
 import OrderDetailModal from '../../components/admin/OrderDetailModal';
 import { useNotification } from '../../components/common/NotificationContext';
+import { useCurrency } from '../../components/common/CurrencyContext';
 
 const getStatusInfo = (status) => {
     switch (status) {
@@ -32,10 +33,6 @@ const getTypeInfo = (type) => {
     }
 };
 
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-};
-
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
@@ -54,7 +51,8 @@ function OrderManagement() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const { token, loading: authLoading, user } = useAuth();
-    const { confirm } = useNotification();
+    const { confirm, notify } = useNotification();
+    const { formatPrice } = useCurrency();
 
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
@@ -102,7 +100,7 @@ function OrderManagement() {
 
     const handleViewDetails = async (orderId) => {
         if (!isAdmin) {
-            alert('Bạn không có quyền xem chi tiết đơn hàng.');
+            notify('Bạn không có quyền xem chi tiết đơn hàng.', 'warning');
             return;
         }
         try {
@@ -111,13 +109,13 @@ function OrderManagement() {
             setSelectedOrder(data);
             setIsModalOpen(true);
         } catch (err) {
-            alert(`Không thể tải chi tiết đơn hàng: ${err.response?.data?.message || err.message}`);
+            notify(`Không thể tải chi tiết đơn hàng: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 
     const handleCancelOrder = async (orderId) => {
         if (!isAdmin) {
-            alert('Bạn không có quyền hủy đơn hàng.');
+            notify('Bạn không có quyền hủy đơn hàng.', 'warning');
             return;
         }
 
@@ -136,10 +134,10 @@ function OrderManagement() {
         try {
             const config = { headers: { 'Authorization': `Bearer ${token}` } };
             await axios.put(`/api/orders/${orderId}/status`, { status: 'cancelled' }, config);
-            alert('Hủy đơn hàng thành công.');
+            notify('Hủy đơn hàng thành công.', 'success');
             fetchOrders();
         } catch (err) {
-            alert(`Lỗi khi hủy đơn hàng: ${err.response?.data?.message || err.message}`);
+            notify(`Lỗi khi hủy đơn hàng: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 

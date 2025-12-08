@@ -1,12 +1,11 @@
 import React from 'react';
 import './Cart.css';
 import { Link } from 'react-router-dom';
-
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-};
+import { useCurrency } from '../common/CurrencyContext';
 
 function Cart({ cartItems, onAdd, onRemove, onClose, isOpen }) {
+    const { formatPrice } = useCurrency();
+
     const itemsPrice = cartItems.reduce((a, c) => a + c.qty * c.price, 0);
 
     return (
@@ -51,8 +50,8 @@ function Cart({ cartItems, onAdd, onRemove, onClose, isOpen }) {
                                 <span>{formatPrice(itemsPrice)}</span>
                             </div>
                         </div>
-                        <Link to="/checkout" className="btn-checkout" onClick={onClose}>
-                            Tiến hành đặt món
+                        <Link to="/reservation" className="btn-checkout" onClick={onClose}>
+                            Tiến hành đặt bàn
                         </Link>
                     </div>
                 )}

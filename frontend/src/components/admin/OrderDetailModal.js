@@ -1,11 +1,9 @@
 import React from 'react';
-
-const formatPrice = (price) => {
-    if (typeof price !== 'number') return 'N/A';
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-};
+import { useCurrency } from '../common/CurrencyContext';
 
 const OrderDetailModal = ({ isOpen, onClose, order }) => {
+    const { formatPrice } = useCurrency();
+
     if (!isOpen || !order) {
         return null;
     }

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+    import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNotification } from '../components/common/NotificationContext';
 import sliderImage from '../assets/images/brlogin.jpg'; // Import ảnh nền
 
 function Register() {
@@ -10,6 +11,7 @@ function Register() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const { notify } = useNotification();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -59,7 +61,9 @@ function Register() {
             }
 
             // Hiển thị thông báo từ backend và không tự động chuyển trang
-            setSuccess(data.message || 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.');
+            const message = data.message || 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.';
+            setSuccess(message);
+            notify(message, 'success');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -122,12 +126,9 @@ function Register() {
                         {isLoading ? 'Đang xử lý...' : 'Đăng ký'}
                     </button>
 
-                    {/* Khu vực báo lỗi và thành công */}
+                    {/* Khu vực báo lỗi (thông báo thành công đã hiển thị bằng popup notify) */}
                     {error && <div className="mt-4 bg-red-500/30 border border-red-500 text-white px-4 py-3 rounded-md" role="alert">
                         <p>{error}</p>
-                    </div>}
-                    {success && <div className="mt-4 bg-green-500/30 border border-green-500 text-white px-4 py-3 rounded-md" role="alert">
-                        <p>{success}</p>
                     </div>}
                 </form>
                 

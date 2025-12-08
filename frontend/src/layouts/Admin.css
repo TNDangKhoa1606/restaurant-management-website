@@ -297,18 +297,52 @@
     display: inline-block;
     padding: 6px 10px;
     border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
-    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    background-color: #e5e7eb;
+    border: 1px solid transparent;
 }
 
-.status-new { background-color: #17a2b8; }
-.status-pending { background-color: #f39c12; }
-.status-completed { background-color: #28a745; }
-.status-cancelled { background-color: #dc3545; }
+.status-new {
+    background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+    border-color: #0ea5e9;
+    color: #ecfeff;
+}
 
-.status-active { background-color: #28a745; }
-.status-inactive { background-color: #dc3545; }
+.status-pending {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    border-color: #f59e0b;
+    color: #fffbeb;
+}
+
+.status-completed {
+    background: linear-gradient(135deg, #15803d, #16a34a);
+    border-color: #16a34a;
+    color: #ecfdf3;
+}
+
+.status-cancelled {
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
+    border-color: #dc2626;
+    color: #fef2f2;
+}
+
+.status-confirmed {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border-color: #1d4ed8;
+    color: #eff6ff;
+}
+
+.status-active {
+    background: #22c55e;
+    color: #ecfdf5;
+}
+
+.status-inactive {
+    background: #ef4444;
+    color: #fef2f2;
+}
 
 .actions-cell {
     white-space: nowrap; /* Ngăn các nút hành động xuống dòng */

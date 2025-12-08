@@ -1,9 +1,11 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../pages/AuthContext'; // Import useAuth
+import { useNotification } from '../components/common/NotificationContext';
 import './Admin.css'; // Tái sử dụng CSS chung
 
 function DashboardLayout({ roleConfig }) {
+
     const { navLinks, pageTitles, avatarBgColor } = roleConfig;
 
     const location = useLocation();
@@ -11,6 +13,7 @@ function DashboardLayout({ roleConfig }) {
     
     // Sử dụng state xác thực tập trung
     const { user, logout } = useAuth(); 
+    const { notify } = useNotification();
 
     const pageTitle = pageTitles[location.pathname] || (user?.role || roleConfig.roleName);
 
@@ -18,6 +21,7 @@ function DashboardLayout({ roleConfig }) {
 
     const handleLogout = () => {
         logout(); // Gọi hàm logout từ context
+        notify('Đăng xuất thành công khỏi hệ thống nội bộ.', 'success');
         navigate('/internal/login', { replace: true }); // Chuyển hướng đến trang đăng nhập nội bộ chính xác
     };
 
@@ -31,7 +35,7 @@ function DashboardLayout({ roleConfig }) {
 
         if (allowedRoles.length > 0 && (!normalizedRole || !allowedRoles.includes(normalizedRole))) {
             event.preventDefault();
-            alert('Bạn không có quyền truy cập vào menu này!');
+            notify('Bạn không có quyền truy cập vào menu này!', 'warning');
         }
     };
 

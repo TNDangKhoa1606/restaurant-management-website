@@ -138,7 +138,7 @@ const TableMap = () => {
     const [draggingInfo, setDraggingInfo] = useState(null);
     const [dragPreview, setDragPreview] = useState(null);
     const [savingTableId, setSavingTableId] = useState(null);
-    const { confirm } = useNotification();
+    const { confirm, notify } = useNotification();
 
     const fetchTableData = useCallback(async () => {
         if (!token) return;
@@ -161,7 +161,7 @@ const TableMap = () => {
     const fetchPreorders = useCallback(async () => {
         if (!token) return;
         try {
-            const today = new Date().toISOString().substring(0, 10);
+            const today = new Date().toLocaleDateString('sv-SE');
             const config = {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: { date: today, status: 'booked' },
@@ -221,15 +221,15 @@ const TableMap = () => {
             const config = { headers: { 'Authorization': `Bearer ${token}` } };
             if (editingTable) {
                 await axios.put(`/api/tables/${editingTable.table_id}`, tableData, config);
-                alert('Cập nhật bàn thành công!');
+                notify('Cập nhật bàn thành công!', 'success');
             } else {
                 await axios.post('/api/tables', tableData, config);
-                alert('Thêm bàn mới thành công!');
+                notify('Thêm bàn mới thành công!', 'success');
             }
             setTableModalOpen(false);
             fetchTableData(); // Tải lại dữ liệu để hiển thị bàn mới
         } catch (err) {
-            alert(`Lỗi khi lưu bàn: ${err.response?.data?.message || err.message}`);
+            notify(`Lỗi khi lưu bàn: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 
@@ -249,11 +249,11 @@ const TableMap = () => {
         try {
             const config = { headers: { 'Authorization': `Bearer ${token}` } };
             await axios.delete(`/api/tables/${tableId}`, config);
-            alert('Xóa bàn thành công!');
+            notify('Xóa bàn thành công!', 'success');
             setTableModalOpen(false);
             fetchTableData(); // Tải lại dữ liệu
         } catch (err) {
-            alert(`Lỗi khi xóa bàn: ${err.response?.data?.message || err.message}`);
+            notify(`Lỗi khi xóa bàn: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 
@@ -279,10 +279,10 @@ const TableMap = () => {
 
     const handleSelectForMerge = (table) => {
         if (table.status !== 'free') {
-            alert('Chỉ có thể chọn các bàn đang trống để ghép.');
+            notify('Chỉ có thể chọn các bàn đang trống để ghép.', 'warning');
             return;
         }
-        setSelectedToMerge(prev => 
+        setSelectedToMerge(prev =>
             prev.some(t => t.table_id === table.table_id)
                 ? prev.filter(t => t.table_id !== table.table_id)
                 : [...prev, table]
@@ -291,7 +291,7 @@ const TableMap = () => {
 
     const confirmMerge = async () => {
         if (selectedToMerge.length < 2) {
-            alert('Bạn phải chọn ít nhất 2 bàn để ghép.');
+            notify('Bạn phải chọn ít nhất 2 bàn để ghép.', 'warning');
             return;
         }
         const groupName = prompt('Nhập tên cho nhóm bàn mới (ví dụ: G1, VIP-A):');
@@ -299,11 +299,11 @@ const TableMap = () => {
             try {
                 const config = { headers: { 'Authorization': `Bearer ${token}` } };
                 await axios.post('/api/tables/merge', { tableIds: selectedToMerge.map(t => t.table_id), groupName }, config);
-                alert('Ghép bàn thành công!');
+                notify('Ghép bàn thành công!', 'success');
                 toggleMergeMode();
                 fetchTableData();
             } catch (err) {
-                alert(`Lỗi khi ghép bàn: ${err.response?.data?.message || err.message}`);
+                notify(`Lỗi khi ghép bàn: ${err.response?.data?.message || err.message}`, 'error');
             }
         }
     };
@@ -337,11 +337,11 @@ const TableMap = () => {
             await axios.put(`/api/tables/${table.table_id}`, payload, config);
             await fetchTableData();
         } catch (err) {
-            alert(`Không thể lưu vị trí mới cho bàn ${table.table_name}: ${err.response?.data?.message || err.message}`);
+            notify(`Không thể lưu vị trí mới cho bàn ${table.table_name}: ${err.response?.data?.message || err.message}`, 'error');
         } finally {
             setSavingTableId(null);
         }
-    }, [token, fetchTableData]);
+    }, [token, fetchTableData, notify]);
 
     const handleDragStart = useCallback((event, table) => {
         if (!isAdmin || !isRepositioning || isMerging) return;

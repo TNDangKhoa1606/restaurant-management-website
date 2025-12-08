@@ -24,7 +24,7 @@ function EmployeeList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { token, loading: authLoading } = useAuth();
-    const { confirm } = useNotification();
+    const { confirm, notify } = useNotification();
 
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
@@ -96,9 +96,9 @@ function EmployeeList() {
             setEmployees(employees.map(emp => emp.id === updatedData.id ? data : emp));
             
             handleCloseModal();
-            alert('Cập nhật thông tin nhân viên thành công!');
+            notify('Cập nhật thông tin nhân viên thành công!', 'success');
         } catch (err) {
-            alert(err.response?.data?.message || 'Không thể cập nhật thông tin nhân viên.');
+            notify(err.response?.data?.message || 'Không thể cập nhật thông tin nhân viên.', 'error');
         }
     };
 
@@ -123,7 +123,7 @@ function EmployeeList() {
             };
             await axios.delete(`/api/users/${id}`, config);
             setEmployees(employees.filter(emp => emp.id !== id));
-            alert('Xóa nhân viên thành công!');
+            notify('Xóa nhân viên thành công!', 'success');
         } catch (err) {
             setError(err.response?.data?.message || 'Không thể xóa nhân viên.');
         }

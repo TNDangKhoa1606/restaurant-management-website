@@ -2,6 +2,7 @@ const db = require('../../config/db');
 const paymentRepository = require('./paymentRepository');
 const { buildQrPayload } = require('./services/vietqrService');
 const momoService = require('./services/momoService');
+const { emitReservationsUpdateForUser } = require('../../socket');
 
 const ADMIN_ROLES = ['Admin', 'Receptionist'];
 
@@ -50,18 +51,28 @@ const createPaymentSession = async (req, res) => {
     }
 
     // Nếu đơn hàng hiện chưa gắn với user nào (guest order) và đây là khách hàng đăng nhập,
-    // tự động gắn đơn hàng với user hiện tại để họ có thể thanh toán.
+    // tự động gắn đơn hàng + các đặt bàn liên quan với user hiện tại để họ có thể thanh toán và xem lịch sử.
     if (!order.user_id && req.user && req.user.role_name === 'Customer') {
         try {
             await db.query('UPDATE orders SET user_id = ? WHERE order_id = ?', [req.user.user_id, orderId]);
             order.user_id = req.user.user_id;
+
+            // Gắn luôn reservation.user_id cho các đặt bàn đang trỏ tới đơn cọc này nhưng chưa có user
+            await db.query(
+                'UPDATE reservations SET user_id = ? WHERE deposit_order_id = ? AND (user_id IS NULL OR user_id = 0)',
+                [req.user.user_id, orderId]
+            );
         } catch (attachError) {
-            console.error('Error attaching current user to order before payment:', attachError.message);
+            console.error('Error attaching current user to order/reservation before payment:', attachError.message);
         }
     }
 
     if (!canAccessOrder(order, req.user)) {
         return res.status(403).json({ message: 'Bạn không có quyền thao tác với đơn hàng này.' });
+    }
+
+    if (order.status === 'cancelled') {
+        return res.status(400).json({ message: 'Đơn hàng này đã bị huỷ. Vui lòng tạo đơn mới trước khi thanh toán.' });
     }
 
     if (order.is_paid) {
@@ -181,6 +192,20 @@ const verifyManualPayment = async (req, res) => {
     if (action === 'approve') {
         await paymentRepository.updatePayment(payment.payment_id, { status: 'succeeded' });
         await markOrderAsPaid(payment.order_id, payment.method);
+
+        // Nếu đây là đơn cọc cho đặt bàn, phát realtime cho chủ đặt bàn
+        try {
+            const [rows] = await db.query(
+                'SELECT user_id FROM reservations WHERE deposit_order_id = ? AND user_id IS NOT NULL',
+                [payment.order_id]
+            );
+            if (rows && rows.length > 0 && rows[0].user_id) {
+                await emitReservationsUpdateForUser(rows[0].user_id);
+            }
+        } catch (error) {
+            console.error('Emit reservations update error (verifyManualPayment):', error);
+        }
+
         return res.json({ message: 'Đã xác nhận thanh toán thành công.' });
     }
 
@@ -216,6 +241,19 @@ const handleMomoReturn = async (req, res) => {
                 gateway_response: params,
             });
             await markOrderAsPaid(payment.order_id, payment.method);
+
+            try {
+                const [rows] = await db.query(
+                    'SELECT user_id FROM reservations WHERE deposit_order_id = ? AND user_id IS NOT NULL',
+                    [payment.order_id]
+                );
+                if (rows && rows.length > 0 && rows[0].user_id) {
+                    await emitReservationsUpdateForUser(rows[0].user_id);
+                }
+            } catch (error) {
+                console.error('Emit reservations update error (handleMomoReturn):', error);
+            }
+
             return res.redirect(buildResultRedirectUrl('succeeded', payment.order_id));
         }
 
@@ -249,6 +287,19 @@ const handleMomoIpn = async (req, res) => {
                 gateway_response: params,
             });
             await markOrderAsPaid(payment.order_id, payment.method);
+
+            try {
+                const [rows] = await db.query(
+                    'SELECT user_id FROM reservations WHERE deposit_order_id = ? AND user_id IS NOT NULL',
+                    [payment.order_id]
+                );
+                if (rows && rows.length > 0 && rows[0].user_id) {
+                    await emitReservationsUpdateForUser(rows[0].user_id);
+                }
+            } catch (error) {
+                console.error('Emit reservations update error (handleMomoIpn):', error);
+            }
+
             return res.json({ message: 'Đã ghi nhận thanh toán thành công.' });
         }
 
@@ -283,6 +334,18 @@ const demoConfirmPayment = async (req, res) => {
 
         await paymentRepository.updatePayment(payment.payment_id, { status: 'succeeded' });
         await markOrderAsPaid(payment.order_id, payment.method);
+
+        try {
+            const [rows] = await db.query(
+                'SELECT user_id FROM reservations WHERE deposit_order_id = ? AND user_id IS NOT NULL',
+                [payment.order_id]
+            );
+            if (rows && rows.length > 0 && rows[0].user_id) {
+                await emitReservationsUpdateForUser(rows[0].user_id);
+            }
+        } catch (error) {
+            console.error('Emit reservations update error (demoConfirmPayment):', error);
+        }
 
         return res.json({
             message: 'Đã giả lập thanh toán thành công (demo).',

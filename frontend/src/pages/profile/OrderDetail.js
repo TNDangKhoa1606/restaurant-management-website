@@ -2,11 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
+import { useCurrency } from '../../components/common/CurrencyContext';
 import './OrderDetail.css';
-
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-};
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -60,6 +57,8 @@ const getPaymentText = (order) => {
 const OrderDetail = () => {
     const { orderId } = useParams();
     const { token, isAuthenticated, loading: authLoading } = useAuth();
+    const { formatPrice } = useCurrency();
+
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');

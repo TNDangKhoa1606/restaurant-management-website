@@ -16,11 +16,13 @@ module.exports = function(passport) {
             callbackURL: '/api/auth/google/callback'
         },
     async (accessToken, refreshToken, profile, done) => {
+        const avatarUrl = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null;
         const newUser = {
             google_id: profile.id,
             name: profile.displayName,
             email: profile.emails[0].value,
-            is_verified: true // Tài khoản Google mặc định là đã xác thực
+            is_verified: true, // Tài khoản Google mặc định là đã xác thực
+            avatar_url: avatarUrl,
         };
 
         try {
@@ -48,7 +50,12 @@ module.exports = function(passport) {
             let user = users[0];
 
             if (user) {
-                // Nếu đã có, trả về người dùng đó
+                // Nếu đã có, cập nhật avatar_url nếu trước đó chưa có và Google cung cấp
+                if (!user.avatar_url && newUser.avatar_url) {
+                    await db.query('UPDATE users SET avatar_url = ? WHERE user_id = ?', [newUser.avatar_url, user.user_id]);
+                    const [updatedUsers] = await db.query(selectUserByIdQuery, [user.user_id]);
+                    return done(null, updatedUsers[0]);
+                }
                 return done(null, user);
             } else {
                 // 2. Nếu chưa, tìm xem có tài khoản nào trùng email không
@@ -56,8 +63,12 @@ module.exports = function(passport) {
                 user = users[0];
 
                 if (user) {
-                    // Nếu có, cập nhật google_id cho tài khoản đó
-                    await db.query('UPDATE users SET google_id = ? WHERE user_id = ?', [newUser.google_id, user.user_id]);
+                    // Nếu có, cập nhật google_id, và chỉ set avatar_url nếu hiện chưa có
+                    if (!user.avatar_url && newUser.avatar_url) {
+                        await db.query('UPDATE users SET google_id = ?, avatar_url = ? WHERE user_id = ?', [newUser.google_id, newUser.avatar_url, user.user_id]);
+                    } else {
+                        await db.query('UPDATE users SET google_id = ? WHERE user_id = ?', [newUser.google_id, user.user_id]);
+                    }
                     const [updatedUsers] = await db.query(selectUserByIdQuery, [user.user_id]);
                     return done(null, updatedUsers[0]);
                 } else {
@@ -72,10 +83,10 @@ module.exports = function(passport) {
                     const passwordHash = await bcrypt.hash(randomPassword, salt);
 
                     const insertSql = `
-                        INSERT INTO users (google_id, name, email, password_hash, role_id, is_verified)
-                        VALUES (?, ?, ?, ?, ?, ?);
+                        INSERT INTO users (google_id, name, email, password_hash, role_id, is_verified, avatar_url)
+                        VALUES (?, ?, ?, ?, ?, ?, ?);
                     `;
-                    const [result] = await db.query(insertSql, [newUser.google_id, newUser.name, newUser.email, passwordHash, customerRoleId, newUser.is_verified]);
+                    const [result] = await db.query(insertSql, [newUser.google_id, newUser.name, newUser.email, passwordHash, customerRoleId, newUser.is_verified, newUser.avatar_url]);
 
                     // Lấy lại thông tin người dùng vừa tạo để trả về
                     const [createdUsers] = await db.query(selectUserByIdQuery, [result.insertId]);

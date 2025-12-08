@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useNotification } from '../common/NotificationContext';
 import './TableNumberPopup.css';
 
 function TableNumberPopup({ onClose }) {
     const [tableNumber, setTableNumber] = useState('');
     const navigate = useNavigate();
+    const { notify } = useNotification();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -13,7 +15,7 @@ function TableNumberPopup({ onClose }) {
             navigate(`/table/${tableNumber}`);
             onClose(); // Đóng popup sau khi chuyển hướng
         } else {
-            alert('Vui lòng nhập một số bàn hợp lệ.');
+            notify('Vui lòng nhập một số bàn hợp lệ.', 'warning');
         }
     };
 

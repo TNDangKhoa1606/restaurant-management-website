@@ -1,25 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../pages/AuthContext';
 
 function BackToTop() {
   const [isVisible, setIsVisible] = useState(false);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
-
-  // Kiểm tra trạng thái đăng nhập khi component được tải và khi người dùng điều hướng
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Lỗi khi đọc thông tin người dùng từ localStorage", e);
-        // Xóa dữ liệu hỏng nếu có
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
-    }
-  }, []);
+  const { user, logout } = useAuth();
 
   // Hiển thị nút khi người dùng cuộn xuống
   const toggleVisibility = () => {
@@ -45,9 +31,7 @@ function BackToTop() {
 
   const handleLogout = (e) => {
     e.preventDefault();
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    setUser(null);
+    logout();
     navigate('/'); // Chuyển về trang chủ sau khi đăng xuất
   };
 

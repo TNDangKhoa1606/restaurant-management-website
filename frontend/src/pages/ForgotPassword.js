@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNotification } from '../components/common/NotificationContext';
 import sliderImage from '../assets/images/brlogin.jpg'; // Import ảnh nền
 
 function ForgotPassword() {
     const [email, setEmail] = useState('');
-    const [success, setSuccess] = useState('');
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const { notify } = useNotification();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        setSuccess('');
-        setError('');
 
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/forgot-password`, {
@@ -28,10 +26,10 @@ function ForgotPassword() {
             if (!response.ok) {
                 throw new Error(data.message || 'Đã có lỗi xảy ra.');
             }
-            setSuccess(data.message);
+            notify(data.message, 'success');
             setEmail(''); // Xóa email sau khi gửi thành công
         } catch (err) {
-            setError(err.message);
+            notify(err.message || 'Đã có lỗi xảy ra.', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -62,13 +60,7 @@ function ForgotPassword() {
                         {isLoading ? 'Đang xử lý...' : 'Gửi liên kết'}
                     </button>
 
-                    {/* Khu vực thông báo */}
-                    {success && <div className="mt-4 bg-green-500/30 border border-green-500 text-white px-4 py-3 rounded-md" role="alert">
-                        <p>{success}</p>
-                    </div>}
-                    {error && <div className="mt-4 bg-red-500/30 border border-red-500 text-white px-4 py-3 rounded-md" role="alert">
-                        <p>{error}</p>
-                    </div>}
+                    {/* Khu vực thông báo đã được hiển thị bằng popup (notify) */}
                 </form>
 
                 {/* Liên kết ngoài form */}

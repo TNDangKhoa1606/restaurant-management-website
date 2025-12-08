@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../AuthContext';
+import { useNotification } from '../../../components/common/NotificationContext';
 import './KitchenOrders.css';
 
 const OrderCard = ({ order, onUpdateStatus, canUpdateStatus }) => (
@@ -32,6 +33,7 @@ const OrderCard = ({ order, onUpdateStatus, canUpdateStatus }) => (
 const KitchenOrders = () => {
     const [orders, setOrders] = useState([]);
     const { token, user } = useAuth();
+    const { notify } = useNotification();
     const role = user?.role?.toLowerCase();
     const canUpdateStatus = role === 'admin' || role === 'kitchen';
 
@@ -88,7 +90,7 @@ const KitchenOrders = () => {
             );
         } catch (error) {
             console.error(error);
-            alert(error.response?.data?.message || 'Không thể cập nhật trạng thái đơn hàng.');
+            notify(error.response?.data?.message || 'Không thể cập nhật trạng thái đơn hàng.', 'error');
         }
     };
 

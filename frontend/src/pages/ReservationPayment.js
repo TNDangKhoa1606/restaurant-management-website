@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import { useNotification } from '../components/common/NotificationContext';
+import { useCurrency } from '../components/common/CurrencyContext';
 import './Checkout.css';
 
 function ReservationPayment() {
     const location = useLocation();
     const navigate = useNavigate();
     const { token, isAuthenticated } = useAuth();
+    const { notify } = useNotification();
+    const { formatPrice } = useCurrency();
 
     const reservationState = location.state && location.state.reservation
         ? location.state.reservation
@@ -22,27 +26,23 @@ function ReservationPayment() {
 
     useEffect(() => {
         if (!reservationState) {
-            alert('Không có thông tin đặt bàn để thanh toán tiền cọc. Vui lòng đặt bàn lại.');
+            notify('Không có thông tin đặt bàn để thanh toán tiền cọc. Vui lòng đặt bàn lại.', 'warning');
             navigate('/reservation', { replace: true });
         }
-    }, [reservationState, navigate]);
-
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
-    };
+    }, [reservationState, navigate, notify]);
 
     const depositAmount = reservationState ? reservationState.deposit_amount || 0 : 0;
     const fullAmount = reservationState ? reservationState.full_amount || 0 : 0;
 
     const handleConfirmDeposit = async () => {
         if (!reservationState || !reservationState.deposit_order_id) {
-            alert('Thiếu thông tin đơn hàng đặt cọc. Vui lòng quay lại đặt bàn.');
+            notify('Thiếu thông tin đơn hàng đặt cọc. Vui lòng quay lại đặt bàn.', 'error');
             return;
         }
 
         if (paymentMethod === 'vietqr') {
             if (!isAuthenticated || !token) {
-                alert('Vui lòng đăng nhập trước khi sử dụng thanh toán VietQR.');
+                notify('Vui lòng đăng nhập trước khi sử dụng thanh toán VietQR.', 'warning');
                 navigate('/login');
                 return;
             }
@@ -68,16 +68,17 @@ function ReservationPayment() {
                     amount: data.amount,
                     description: data.description,
                 });
-                alert('Đặt bàn đã được tạo. Vui lòng quét mã VietQR để thanh toán tiền cọc.');
+                notify('Đặt bàn đã được tạo. Vui lòng quét mã VietQR để thanh toán tiền cọc.', 'success');
                 return;
             }
 
-            alert('Đặt bàn đã được ghi nhận. Vui lòng thanh toán tiền cọc tại quầy trước giờ dùng bữa.');
+            notify('Đặt bàn đã được ghi nhận. Vui lòng thanh toán tiền cọc tại quầy trước giờ dùng bữa.', 'success');
             navigate('/');
         } catch (error) {
             console.error('Error creating reservation deposit payment:', error);
-            setPaymentError(error.response?.data?.message || 'Không thể tạo phiên thanh toán tiền cọc.');
-            alert('Không thể tạo phiên thanh toán tiền cọc. Vui lòng thử lại hoặc thanh toán tại quầy.');
+            const errorMsg = error.response?.data?.message || 'Không thể tạo phiên thanh toán tiền cọc.';
+            setPaymentError(errorMsg);
+            notify(errorMsg + ' Vui lòng thử lại hoặc thanh toán tại quầy.', 'error');
         } finally {
             setIsSubmitting(false);
         }
@@ -85,7 +86,7 @@ function ReservationPayment() {
 
     const handleDemoConfirm = async () => {
         if (!paymentId) {
-            alert('Không tìm thấy thông tin phiếu thanh toán để xác nhận demo. Vui lòng tạo lại QR.');
+            notify('Không tìm thấy thông tin phiếu thanh toán để xác nhận demo. Vui lòng tạo lại QR.', 'error');
             return;
         }
 
@@ -93,12 +94,13 @@ function ReservationPayment() {
         try {
             const config = { headers: { Authorization: `Bearer ${token}` } };
             await axios.post(`/api/payments/${paymentId}/demo-confirm`, {}, config);
-            alert('Thanh toán tiền cọc (demo) đã được xác nhận. Hẹn gặp bạn tại nhà hàng!');
+            notify('Thanh toán tiền cọc (demo) đã được xác nhận. Hẹn gặp bạn tại nhà hàng!', 'success');
             navigate('/');
         } catch (error) {
             console.error('Demo confirm payment error:', error);
-            setPaymentError(error.response?.data?.message || 'Không thể xác nhận thanh toán demo.');
-            alert('Không thể xác nhận thanh toán demo. Vui lòng thử lại hoặc để nhân viên xác nhận giúp bạn.');
+            const errorMsg = error.response?.data?.message || 'Không thể xác nhận thanh toán demo.';
+            setPaymentError(errorMsg);
+            notify(errorMsg + ' Vui lòng thử lại hoặc để nhân viên xác nhận giúp bạn.', 'error');
         } finally {
             setIsSubmitting(false);
         }

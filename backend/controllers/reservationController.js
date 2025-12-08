@@ -1,4 +1,6 @@
 const db = require('../config/db');
+const sendEmail = require('../utils/sendEmail');
+const { emitReservationsUpdateForUser } = require('../socket');
 
 const PREORDER_NOTE_REGEX = /Pre-order cho đặt bàn\s*#(\d+)/i;
 
@@ -12,6 +14,145 @@ const parseReservationIdFromNote = (note) => {
     }
     const reservationId = parseInt(match[1], 10);
     return Number.isNaN(reservationId) ? null : reservationId;
+};
+
+const RESERVATION_HOLD_MINUTES = 5;
+
+const autoExpireUnpaidReservations = async () => {
+    const connection = await db.getConnection();
+    let expiredReservations = [];
+
+    try {
+        await connection.beginTransaction();
+
+        const [rows] = await connection.query(
+            `SELECT 
+                r.reservation_id,
+                r.table_id,
+                r.deposit_order_id,
+                r.user_id,
+                r.res_date,
+                r.res_time,
+                r.number_of_people,
+                COALESCE(r.guest_name, u.name) AS guest_name,
+                COALESCE(r.guest_phone, u.phone) AS guest_phone,
+                u.email,
+                t.table_name
+             FROM reservations r
+             LEFT JOIN orders o ON r.deposit_order_id = o.order_id
+             LEFT JOIN users u ON r.user_id = u.user_id
+             LEFT JOIN restauranttables t ON r.table_id = t.table_id
+             WHERE r.status = 'booked'
+               AND r.deposit_order_id IS NOT NULL
+               AND r.created_at <= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+               AND (o.is_paid IS NULL OR o.is_paid = 0)`,
+            [RESERVATION_HOLD_MINUTES]
+        );
+
+        if (rows.length > 0) {
+            const reservationIds = rows.map((row) => row.reservation_id);
+            const tableIds = [...new Set(rows.map((row) => row.table_id))];
+            const orderIds = [...new Set(rows.map((row) => row.deposit_order_id).filter(Boolean))];
+
+            await connection.query(
+                'UPDATE reservations SET status = "cancelled" WHERE reservation_id IN (?)',
+                [reservationIds]
+            );
+
+            if (tableIds.length > 0) {
+                await connection.query(
+                    'UPDATE restauranttables SET status = "free" WHERE table_id IN (?)',
+                    [tableIds]
+                );
+            }
+
+            if (orderIds.length > 0) {
+                await connection.query(
+                    'UPDATE orders SET status = "cancelled" WHERE order_id IN (?)',
+                    [orderIds]
+                );
+            }
+        }
+
+        expiredReservations = rows;
+
+        // Gửi realtime lịch sử đặt bàn cho các user liên quan
+        if (rows && rows.length > 0) {
+            const userIds = [...new Set(rows.map((row) => row.user_id).filter((id) => id))];
+            for (const userId of userIds) {
+                try {
+                    await emitReservationsUpdateForUser(userId);
+                } catch (error) {
+                    console.error('Emit reservations update error (autoExpireUnpaidReservations):', error);
+                }
+            }
+        }
+
+        await connection.commit();
+    } catch (error) {
+        console.error('Auto expire unpaid reservations error:', error);
+        await connection.rollback();
+    } finally {
+        connection.release();
+    }
+
+    if (!expiredReservations || expiredReservations.length === 0) {
+        return;
+    }
+
+    for (const reservation of expiredReservations) {
+        if (!reservation.email) {
+            continue;
+        }
+
+        const dateValue = reservation.res_date;
+        const timeValue = reservation.res_time;
+        let formattedDate = '';
+        let formattedTime = '';
+
+        if (dateValue instanceof Date) {
+            const year = dateValue.getFullYear();
+            const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+            const day = String(dateValue.getDate()).padStart(2, '0');
+            formattedDate = `${day}/${month}/${year}`;
+        } else if (typeof dateValue === 'string') {
+            formattedDate = dateValue;
+        }
+
+        if (typeof timeValue === 'string') {
+            formattedTime = timeValue.slice(0, 5);
+        } else if (timeValue instanceof Date) {
+            const hours = String(timeValue.getHours()).padStart(2, '0');
+            const minutes = String(timeValue.getMinutes()).padStart(2, '0');
+            formattedTime = `${hours}:${minutes}`;
+        }
+
+        const subject = 'Thông báo huỷ đặt bàn do quá thời gian giữ bàn';
+        const html = `
+            <h1>Đơn đặt bàn của bạn đã bị huỷ</h1>
+            <p>Xin chào ${reservation.guest_name || ''},</p>
+            <p>Đặt bàn của bạn tại Mì Tinh Tế đã bị huỷ vì sau ${RESERVATION_HOLD_MINUTES} phút hệ thống vẫn chưa ghi nhận thanh toán tiền cọc.</p>
+            <p><strong>Thông tin đặt bàn:</strong></p>
+            <ul>
+                <li>Mã đặt bàn: #${reservation.reservation_id}</li>
+                <li>Bàn: ${reservation.table_name || reservation.table_id}</li>
+                <li>Ngày: ${formattedDate}</li>
+                <li>Giờ: ${formattedTime}</li>
+                <li>Số khách: ${reservation.number_of_people}</li>
+            </ul>
+            <p>Nếu bạn vẫn muốn sử dụng dịch vụ, vui lòng truy cập lại website để đặt bàn mới.</p>
+        `;
+
+        try {
+            await sendEmail({
+                to: reservation.email,
+                subject,
+                html,
+            });
+        } catch (error) {
+            console.error('Send reservation expiry email error:', error);
+        }
+    }
 };
 
 const createReservation = async (req, res) => {
@@ -57,7 +198,11 @@ const createReservation = async (req, res) => {
         const [existingReservations] = await connection.query(
             `SELECT COUNT(*) AS count
              FROM reservations
-             WHERE table_id = ? AND res_date = ? AND res_time = ? AND status IN ('booked','completed')`,
+             WHERE table_id = ?
+               AND res_date = ?
+               AND res_time = ?
+               AND status IN ('booked','completed')
+               AND is_checked_out = 0`,
             [tableId, date, resTime]
         );
 
@@ -78,6 +223,14 @@ const createReservation = async (req, res) => {
         );
 
         await connection.commit();
+
+        if (userId) {
+            try {
+                await emitReservationsUpdateForUser(userId);
+            } catch (error) {
+                console.error('Emit reservations update error (createReservation):', error);
+            }
+        }
 
         res.status(201).json({
             reservation_id: result.insertId,
@@ -101,7 +254,7 @@ const markDepositCash = async (req, res) => {
         await connection.beginTransaction();
 
         const [reservations] = await connection.query(
-            'SELECT deposit_order_id FROM reservations WHERE reservation_id = ?',
+            'SELECT deposit_order_id, user_id FROM reservations WHERE reservation_id = ?',
             [id]
         );
 
@@ -138,6 +291,15 @@ const markDepositCash = async (req, res) => {
         );
 
         await connection.commit();
+
+        const userId = reservations[0].user_id;
+        if (userId) {
+            try {
+                await emitReservationsUpdateForUser(userId);
+            } catch (error) {
+                console.error('Emit reservations update error (markDepositCash):', error);
+            }
+        }
 
         return res.json({
             message: 'Đã ghi nhận khách đặt cọc tiền mặt.',
@@ -196,7 +358,11 @@ const createReservationWithDeposit = async (req, res) => {
         const [existingReservations] = await connection.query(
             `SELECT COUNT(*) AS count
              FROM reservations
-             WHERE table_id = ? AND res_date = ? AND res_time = ? AND status IN ('booked','completed')`,
+             WHERE table_id = ?
+               AND res_date = ?
+               AND res_time = ?
+               AND status IN ('booked','completed')
+               AND is_checked_out = 0`,
             [tableId, date, resTime]
         );
 
@@ -303,6 +469,14 @@ const createReservationWithDeposit = async (req, res) => {
 
         await connection.commit();
 
+        if (userId) {
+            try {
+                await emitReservationsUpdateForUser(userId);
+            } catch (error) {
+                console.error('Emit reservations update error (createReservationWithDeposit):', error);
+            }
+        }
+
         return res.status(201).json({
             reservation_id: reservationId,
             deposit_order_id: depositOrderId,
@@ -349,6 +523,7 @@ const getReservations = async (req, res) => {
                 r.res_time,
                 r.number_of_people,
                 r.status,
+                r.is_checked_out,
                 r.deposit_order_id,
                 COALESCE(r.guest_name, u.name, 'Khách vãng lai') AS guest_name,
                 COALESCE(r.guest_phone, u.phone) AS guest_phone,
@@ -370,7 +545,8 @@ const getReservations = async (req, res) => {
             params.push(status);
         }
 
-        query += ' ORDER BY r.res_date, r.res_time';
+        // Sắp xếp đơn mới nhất lên đầu danh sách
+        query += ' ORDER BY r.reservation_id DESC';
 
         const [rows] = await db.query(query, params);
 
@@ -493,6 +669,7 @@ const getMyReservations = async (req, res) => {
                 r.res_time,
                 r.number_of_people,
                 r.status,
+                r.is_checked_out,
                 r.deposit_order_id,
                 t.table_name
              FROM reservations r
@@ -565,12 +742,17 @@ const getReservationLayout = async (req, res) => {
     const resTime = time.length === 5 ? `${time}:00` : time;
 
     try {
+        await autoExpireUnpaidReservations();
+
         const [floors] = await db.query('SELECT floor_id, name FROM floors ORDER BY floor_id');
         const [tables] = await db.query('SELECT table_id, floor_id, table_name, capacity, status, pos_x, pos_y FROM restauranttables');
         const [reservedRows] = await db.query(
             `SELECT DISTINCT table_id
              FROM reservations
-             WHERE res_date = ? AND res_time = ? AND status IN ('booked','completed')`,
+             WHERE res_date = ?
+               AND res_time = ?
+               AND status IN ('booked','completed')
+               AND is_checked_out = 0`,
             [date, resTime]
         );
 
@@ -632,7 +814,7 @@ const updateReservationStatus = async (req, res) => {
         await connection.beginTransaction();
 
         const [reservations] = await connection.query(
-            'SELECT table_id FROM reservations WHERE reservation_id = ?',
+            'SELECT table_id, user_id FROM reservations WHERE reservation_id = ?',
             [id]
         );
 
@@ -642,6 +824,7 @@ const updateReservationStatus = async (req, res) => {
         }
 
         const tableId = reservations[0].table_id;
+        const userId = reservations[0].user_id;
 
         await connection.query(
             'UPDATE reservations SET status = ? WHERE reservation_id = ?',
@@ -651,8 +834,11 @@ const updateReservationStatus = async (req, res) => {
         let tableStatus = null;
         if (status === 'booked') {
             tableStatus = 'reserved';
-        } else if (status === 'cancelled' || status === 'completed') {
+        } else if (status === 'cancelled') {
             tableStatus = 'free';
+        } else if (status === 'completed') {
+            // Khách đến → bàn chuyển sang "đang phục vụ", chờ thanh toán xong mới free
+            tableStatus = 'occupied';
         }
 
         if (tableStatus) {
@@ -664,11 +850,88 @@ const updateReservationStatus = async (req, res) => {
 
         await connection.commit();
 
+        if (userId) {
+            try {
+                await emitReservationsUpdateForUser(userId);
+            } catch (error) {
+                console.error('Emit reservations update error (updateReservationStatus):', error);
+            }
+        }
+
         res.json({ message: 'Cập nhật trạng thái đặt bàn thành công.' });
     } catch (error) {
         console.error('Update reservation status error:', error);
         await connection.rollback();
         res.status(500).json({ message: 'Lỗi máy chủ khi cập nhật trạng thái đặt bàn.' });
+    } finally {
+        connection.release();
+    }
+};
+
+/**
+ * Checkout - Thanh toán phần còn lại và giải phóng bàn
+ * Gọi khi khách ăn xong, thanh toán xong → bàn chuyển về free
+ */
+const checkoutReservation = async (req, res) => {
+    const { id } = req.params;
+
+    const connection = await db.getConnection();
+
+    try {
+        await connection.beginTransaction();
+
+        const [reservations] = await connection.query(
+            'SELECT reservation_id, table_id, user_id, status, is_checked_out FROM reservations WHERE reservation_id = ?',
+            [id]
+        );
+
+        if (reservations.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ message: 'Không tìm thấy đặt bàn.' });
+        }
+
+        const reservation = reservations[0];
+
+        if (reservation.is_checked_out) {
+            await connection.rollback();
+            return res.status(400).json({ message: 'Đặt bàn này đã được checkout trước đó.' });
+        }
+
+        if (reservation.status !== 'completed') {
+            await connection.rollback();
+            return res.status(400).json({ message: 'Chỉ có thể checkout đặt bàn đang ở trạng thái "Hoàn thành" (đang phục vụ).' });
+        }
+
+        // Đánh dấu reservation đã checkout và giải phóng bàn
+        await connection.query(
+            'UPDATE reservations SET is_checked_out = 1 WHERE reservation_id = ?',
+            [reservation.reservation_id]
+        );
+
+        await connection.query(
+            'UPDATE restauranttables SET status = ? WHERE table_id = ?',
+            ['free', reservation.table_id]
+        );
+
+        await connection.commit();
+
+        // Emit realtime update cho user
+        if (reservation.user_id) {
+            try {
+                await emitReservationsUpdateForUser(reservation.user_id);
+            } catch (error) {
+                console.error('Emit reservations update error (checkoutReservation):', error);
+            }
+        }
+
+        return res.json({
+            message: 'Checkout thành công. Bàn đã được giải phóng.',
+            table_id: reservation.table_id,
+        });
+    } catch (error) {
+        console.error('Checkout reservation error:', error);
+        await connection.rollback();
+        return res.status(500).json({ message: 'Lỗi máy chủ khi checkout.' });
     } finally {
         connection.release();
     }
@@ -682,4 +945,6 @@ module.exports = {
     updateReservationStatus,
     getReservationLayout,
     markDepositCash,
+    autoExpireUnpaidReservations,
+    checkoutReservation,
 };

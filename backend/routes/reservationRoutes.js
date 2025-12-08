@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createReservation, createReservationWithDeposit, getReservations, getMyReservations, updateReservationStatus, getReservationLayout, markDepositCash } = require('../controllers/reservationController');
+const { createReservation, createReservationWithDeposit, getReservations, getMyReservations, updateReservationStatus, getReservationLayout, markDepositCash, checkoutReservation } = require('../controllers/reservationController');
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 
 // Khách hàng tạo đặt bàn, bắt buộc chọn bàn cụ thể
@@ -23,5 +23,8 @@ router.put('/:id/status', protect, authorizeRoles('Admin', 'Receptionist'), upda
 
 // Admin / Lễ tân ghi nhận khách đã đặt cọc tiền mặt
 router.post('/:id/mark-deposit-cash', protect, authorizeRoles('Admin', 'Receptionist'), markDepositCash);
+
+// Admin / Lễ tân / Phục vụ checkout - thanh toán xong, giải phóng bàn
+router.post('/:id/checkout', protect, authorizeRoles('Admin', 'Receptionist', 'Waiter'), checkoutReservation);
 
 module.exports = router;

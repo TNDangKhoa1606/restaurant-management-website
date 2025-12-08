@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNotification } from '../../components/common/NotificationContext';
 
 // --- Dữ liệu giả lập ---
 const roles = [
@@ -35,6 +36,7 @@ function RolePermissions() {
     const [permissions, setPermissions] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const { notify } = useNotification();
 
     useEffect(() => {
         // Giả lập việc gọi API để lấy dữ liệu
@@ -87,10 +89,10 @@ function RolePermissions() {
             //     body: JSON.stringify({ permissions: permissions[selectedRole] }),
             // });
             await new Promise(resolve => setTimeout(resolve, 1000)); // Giả lập độ trễ mạng
-            alert('Đã lưu thay đổi thành công!');
+            notify('Đã lưu thay đổi thành công!', 'success');
         } catch (error) {
             console.error("Lỗi khi lưu thay đổi:", error);
-            alert('Có lỗi xảy ra, không thể lưu thay đổi.');
+            notify('Có lỗi xảy ra, không thể lưu thay đổi.', 'error');
         } finally {
             setIsSaving(false);
         }

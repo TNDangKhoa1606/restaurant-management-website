@@ -38,20 +38,22 @@ function HeroSlider() {
                 </p>
 
                 {/* Nút hành động */}
-                <a
-                    href="#menu"
-                    className="bg-primary hover:bg-primary-hover text-white font-bold py-3 px-8 rounded-full uppercase tracking-wider transition-all duration-300 animate-fadeInUp opacity-0 hover:scale-105 transform"
-                    style={{ animationFillMode: 'forwards', animationDelay: '2s' }}
-                >
-                    Khám Phá Thực Đơn
-                </a>
-                <a
-                    href="/order-online"
-                    className="mt-4 inline-block bg-primary hover:bg-primary-hover text-white font-bold py-3 px-8 rounded-full uppercase tracking-wider transition-all duration-300 animate-fadeInUp opacity-0 hover:scale-105 transform"
-                    style={{ animationFillMode: 'forwards', animationDelay: '2.2s' }}
-                >
-                    Đặt Món Online
-                </a>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a
+                        href="#menu"
+                        className="bg-primary hover:bg-primary-hover text-white font-bold py-3 px-8 rounded-full uppercase tracking-wider transition-all duration-300 animate-fadeInUp opacity-0 hover:scale-105 transform"
+                        style={{ animationFillMode: 'forwards', animationDelay: '2s' }}
+                    >
+                        Khám Phá Thực Đơn
+                    </a>
+                    <a
+                        href="/reservation"
+                        className="inline-block bg-primary hover:bg-primary-hover text-white font-bold py-3 px-8 rounded-full uppercase tracking-wider transition-all duration-300 animate-fadeInUp opacity-0 hover:scale-105 transform"
+                        style={{ animationFillMode: 'forwards', animationDelay: '2.2s' }}
+                    >
+                        Đặt Bàn Ngay
+                    </a>
+                </div>
             </div>
         </section>
     );

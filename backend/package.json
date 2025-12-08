@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@nestjs/platform-socket.io": "^11.1.9",
+    "@nestjs/websockets": "^11.1.9",
     "axios": "^1.6.7",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -22,7 +24,8 @@
     "mysql2": "^3.2.0",
     "nodemailer": "^7.0.10",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

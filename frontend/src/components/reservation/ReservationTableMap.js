@@ -1,5 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../pages/AuthContext';
+import { getSocket } from '../../socket';
 import '../../pages/staff/serve/TableMap.css';
 import floorStaticElements from '../../config/floorStaticElements';
 
@@ -66,16 +68,20 @@ const PlanElement = ({ element, isSelected, onSelect, disabledReason }) => {
     );
 };
 
-const ReservationTableMap = ({ date, time, guests, selectedTableId, onSelectTable }) => {
+const ReservationTableMap = ({ date, time, guests, selectedTableId, onSelectTable, onClearSelection }) => {
+    const { token, isAuthenticated } = useAuth();
     const [floors, setFloors] = useState([]);
     const [currentFloorId, setCurrentFloorId] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [heldTableIds, setHeldTableIds] = useState(new Set());
+    const socketRef = useRef(null);
 
     useEffect(() => {
         if (!date || !time || !guests) {
             setFloors([]);
             setCurrentFloorId(null);
+            setHeldTableIds(new Set());
             return;
         }
 
@@ -112,22 +118,115 @@ const ReservationTableMap = ({ date, time, guests, selectedTableId, onSelectTabl
         fetchLayout();
     }, [date, time, guests]);
 
+    // WebSocket: subscribe theo date + time để nhận danh sách bàn đang được giữ tạm thời
+    useEffect(() => {
+        if (!date || !time || !guests) {
+            return;
+        }
+
+        if (!token || !isAuthenticated) {
+            setHeldTableIds(new Set());
+            return;
+        }
+
+        const socket = getSocket(token);
+        socketRef.current = socket;
+
+        const handleInit = (payload) => {
+            const holds = (payload && payload.holds) || [];
+            const currentSocketId = socket && socket.id;
+
+            const tableIds = holds
+                .filter((h) => !currentSocketId || !h.socketId || h.socketId !== currentSocketId)
+                .map((h) => h.tableId);
+
+            setHeldTableIds(new Set(tableIds));
+        };
+
+        const handleHoldUpdate = (payload) => {
+            const { date: pDate, time: pTime, tableId, isHeld, socketId: holderSocketId } = payload || {};
+            if (pDate !== date || pTime !== time || !tableId) {
+                return;
+            }
+
+            const currentSocketId = socketRef.current && socketRef.current.id;
+            if (currentSocketId && holderSocketId && holderSocketId === currentSocketId) {
+                return;
+            }
+
+            setHeldTableIds((prev) => {
+                const next = new Set(prev);
+                if (isHeld) {
+                    next.add(tableId);
+                } else {
+                    next.delete(tableId);
+                }
+                return next;
+            });
+        };
+
+        socket.emit('tables:subscribe', { date, time });
+        socket.on('tables:init', handleInit);
+        socket.on('tables:hold-update', handleHoldUpdate);
+
+        return () => {
+            socket.off('tables:init', handleInit);
+            socket.off('tables:hold-update', handleHoldUpdate);
+        };
+    }, [date, time, guests, token, isAuthenticated]);
+
     const floorData = useMemo(() => {
         return floors.find((f) => f.floor_id === currentFloorId) || { name: '', elements: [] };
     }, [floors, currentFloorId]);
 
     const getDisabledReason = (element) => {
         if (element.type === 'static') return '';
+
         if (element.status === 'reserved') {
             return 'Bàn này đã có người đặt trong khung giờ này.';
         }
         if (element.status === 'occupied') {
             return 'Bàn này đang có khách sử dụng.';
         }
+
+        if (element.table_id && heldTableIds.has(element.table_id)) {
+            return 'Bàn này đang được khách khác giữ tạm thời.';
+        }
+
         if (!element.suitable) {
             return 'Bàn này không phù hợp với số khách. Vui lòng chọn bàn theo gợi ý.';
         }
         return '';
+    };
+
+    const handleTableClick = (element) => {
+        if (element.type === 'static') return;
+
+        const tableId = element.table_id;
+        if (!tableId) {
+            if (onSelectTable) {
+                onSelectTable(element);
+            }
+            return;
+        }
+
+        const socket = socketRef.current;
+        const isCurrentlySelected = !!selectedTableId && selectedTableId === tableId;
+
+        if (socket && token && isAuthenticated && date && time) {
+            if (isCurrentlySelected) {
+                socket.emit('tables:release', { date, time, tableId });
+            } else {
+                if (selectedTableId) {
+                    socket.emit('tables:release', { date, time, tableId: selectedTableId });
+                }
+                socket.emit('tables:hold', { date, time, tableId });
+            }
+        }
+
+        if (onSelectTable) {
+            onSelectTable(element);
+        }
     };
 
     if (!date || !time || !guests) {
@@ -173,7 +272,7 @@ const ReservationTableMap = ({ date, time, guests, selectedTableId, onSelectTabl
                                     element.table_id &&
                                     element.table_id === selectedTableId
                                 }
-                                onSelect={onSelectTable}
+                                onSelect={handleTableClick}
                                 disabledReason={disabledReason}
                             />
                         );

@@ -4,6 +4,20 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail'); // Sẽ tạo ở bước sau
 
+const getFullAvatarUrl = (avatarUrl) => {
+    if (!avatarUrl) {
+        return null;
+    }
+    if (typeof avatarUrl !== 'string') {
+        return null;
+    }
+    if (avatarUrl.startsWith('http')) {
+        return avatarUrl;
+    }
+    const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+    return `${backendUrl}${avatarUrl}`;
+};
+
 const register = async (req, res) => {
     const { name, email, password } = req.body; // Chỉ nhận các trường cần thiết
 
@@ -138,6 +152,7 @@ const login = async (req, res) => {
             email: user.email,
             phone: user.phone, // Thêm số điện thoại vào payload
             role: user.role_name, // Sử dụng role_name từ kết quả JOIN
+            avatar: getFullAvatarUrl(user.avatar_url),
         };
 
         // Thêm kiểm tra để đảm bảo JWT_SECRET đã được định nghĩa
@@ -314,6 +329,7 @@ const internalLogin = async (req, res) => {
             email: user.email,
             phone: user.phone,
             role: user.role_name,
+            avatar: getFullAvatarUrl(user.avatar_url),
         };
 
         if (!process.env.JWT_SECRET) {
@@ -399,7 +415,13 @@ const getAllStaff = async (req, res) => {
 
     try {
         let query = `
-            SELECT u.user_id, u.name, u.email, u.phone, u.is_verified, r.role_name
+            SELECT 
+                u.user_id, 
+                u.name, 
+                u.email, 
+                u.phone, 
+                u.is_verified, 
+                r.role_name
             FROM users u
             JOIN roles r ON u.role_id = r.role_id
             WHERE r.role_name != 'Customer'
@@ -442,7 +464,7 @@ const deleteUser = async (req, res) => {
     let connection;
 
     try {
-        connection = await db.promise().getConnection(); // Sửa lỗi ở đây
+        connection = await db.getConnection();
         await connection.beginTransaction();
 
         // 1. Kiểm tra xem người dùng có tồn tại không
@@ -488,7 +510,7 @@ const getAllCustomers = async (req, res) => {
 
     try {
         let baseQuery = `
-            SELECT
+            SELECT 
                 u.user_id,
                 u.name,
                 u.email,
@@ -688,29 +710,183 @@ const getCustomerHistory = async (req, res) => {
 
 const googleCallback = async (req, res) => {
     // Passport đã xác thực và gắn thông tin user vào req.user
-    // Thông tin này đến từ hàm xử lý trong file cấu hình passport.js
     const user = req.user;
 
-    // 1. Tạo payload và token
+    // 1. Tạo payload cho JWT, bao gồm cả avatar nếu có
     const tokenPayload = {
-        id: user.user_id, // Bắt buộc cho JWT
+        id: user.user_id,
         name: user.name,
         email: user.email,
-        phone: user.phone || '', // Đảm bảo phone không phải là null
+        phone: user.phone || '',
         role: user.role_name,
+        avatar: getFullAvatarUrl(user.avatar_url),
     };
 
     if (!process.env.JWT_SECRET) {
         console.error('Lỗi nghiêm trọng: JWT_SECRET chưa được định nghĩa trong tệp .env.');
-        // Chuyển hướng về trang login của frontend với thông báo lỗi
         return res.redirect(`${process.env.FRONTEND_URL}/login?error=server_config`);
     }
 
-    // Đưa toàn bộ thông tin cần thiết vào token
+    // 2. Tạo token và chuyển hướng về frontend
     const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    // 2. Chuyển hướng người dùng về trang xử lý của frontend kèm theo token
     res.redirect(`${process.env.FRONTEND_URL}/google-auth-handler?token=${token}`);
+};
+
+const updateCustomerProfile = async (req, res) => {
+    const userId = req.user.user_id;
+    const { name, phone, email } = req.body;
+
+    if (!name || !phone || !email) {
+        return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ tên, email và số điện thoại.' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: 'Định dạng email không hợp lệ.' });
+    }
+
+    try {
+        const [existingUsers] = await db.query('SELECT user_id FROM users WHERE email = ? AND user_id <> ?', [email, userId]);
+        if (existingUsers.length > 0) {
+            return res.status(400).json({ message: 'Email này đã được sử dụng.' });
+        }
+
+        const [existingPhones] = await db.query('SELECT user_id FROM users WHERE phone = ? AND user_id <> ?', [phone, userId]);
+        if (existingPhones.length > 0) {
+            return res.status(400).json({ message: 'Số điện thoại này đã được sử dụng.' });
+        }
+
+        const updateSql = `
+            UPDATE users
+            SET name = ?, phone = ?, email = ?
+            WHERE user_id = ?
+        `;
+        const [updateResult] = await db.query(updateSql, [name, phone, email, userId]);
+
+        if (updateResult.affectedRows === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy người dùng để cập nhật.' });
+        }
+
+        const [rows] = await db.query(
+            `SELECT u.user_id, u.name, u.email, u.phone, u.avatar_url, r.role_name
+             FROM users u
+             JOIN roles r ON u.role_id = r.role_id
+             WHERE u.user_id = ?`,
+            [userId]
+        );
+
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy người dùng sau khi cập nhật.' });
+        }
+
+        const updated = rows[0];
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+        const fullAvatarUrl = updated.avatar_url && updated.avatar_url.startsWith('http') 
+            ? updated.avatar_url 
+            : (updated.avatar_url ? `${backendUrl}${updated.avatar_url}` : null);
+
+        const userPayload = {
+            id: updated.user_id,
+            name: updated.name,
+            email: updated.email,
+            phone: updated.phone,
+            role: updated.role_name,
+            avatar: fullAvatarUrl,
+        };
+
+        res.json({ user: userPayload });
+    } catch (error) {
+        console.error('Update customer profile error:', error);
+        res.status(500).json({ message: 'Lỗi máy chủ nội bộ khi cập nhật thông tin cá nhân.' });
+    }
+};
+
+const changePassword = async (req, res) => {
+    const userId = req.user.user_id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'Vui lòng cung cấp mật khẩu hiện tại và mật khẩu mới.' });
+    }
+
+    if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+    }
+
+    try {
+        const [users] = await db.query('SELECT password_hash FROM users WHERE user_id = ?', [userId]);
+        if (users.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
+        }
+
+        const user = users[0];
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: 'Mật khẩu hiện tại không chính xác.' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+        await db.query('UPDATE users SET password_hash = ? WHERE user_id = ?', [newPasswordHash, userId]);
+        res.json({ message: 'Đổi mật khẩu thành công.' });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ message: 'Lỗi máy chủ nội bộ khi đổi mật khẩu.' });
+    }
+};
+
+const uploadAvatar = async (req, res) => {
+    const userId = req.user.user_id;
+
+    if (!req.file) {
+        return res.status(400).json({ message: 'Vui lòng chọn một file ảnh để tải lên.' });
+    }
+
+    const avatarPath = `/uploads/${req.file.filename}`;
+
+    try {
+        // Update avatar_url in database
+        const [updateResult] = await db.query('UPDATE users SET avatar_url = ? WHERE user_id = ?', [avatarPath, userId]);
+        console.log('Update result:', updateResult);
+
+        if (updateResult.affectedRows === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy người dùng để cập nhật avatar.' });
+        }
+
+        // Fetch updated user info
+        const [rows] = await db.query(
+            `SELECT u.user_id, u.name, u.email, u.phone, u.avatar_url, r.role_name
+             FROM users u
+             JOIN roles r ON u.role_id = r.role_id
+             WHERE u.user_id = ?`,
+            [userId]
+        );
+
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy người dùng sau khi cập nhật avatar.' });
+        }
+
+        const updated = rows[0];
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+        const fullAvatarUrl = updated.avatar_url && updated.avatar_url.startsWith('http') 
+            ? updated.avatar_url 
+            : (updated.avatar_url ? `${backendUrl}${updated.avatar_url}` : null);
+
+        const userPayload = {
+            id: updated.user_id,
+            name: updated.name,
+            email: updated.email,
+            phone: updated.phone,
+            role: updated.role_name,
+            avatar: fullAvatarUrl,
+        };
+
+        res.json({ user: userPayload });
+    } catch (error) {
+        console.error('Upload avatar error:', error);
+        res.status(500).json({ message: 'Lỗi máy chủ nội bộ khi cập nhật ảnh đại diện.' });
+    }
 };
 
 module.exports = { 
@@ -728,5 +904,8 @@ module.exports = {
     getCustomerHistory,  // Thêm hàm mới
     toggleVipStatus,
     updateUser, // Thêm hàm updateUser vào export
-    googleCallback // Thêm hàm mới
+    googleCallback, // Thêm hàm mới
+    changePassword,
+    updateCustomerProfile,
+    uploadAvatar,
 };

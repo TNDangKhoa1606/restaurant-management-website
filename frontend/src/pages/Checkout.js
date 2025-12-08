@@ -5,6 +5,7 @@ import { useAuth } from './AuthContext';
 import './Checkout.css';
 import PreOrderPopup from '../components/reservation/PreOrderPopup';
 import { useNotification } from '../components/common/NotificationContext';
+import { useCurrency } from '../components/common/CurrencyContext';
 
 function Checkout() {
     const [cartItems, setCartItems] = useState([]);
@@ -24,6 +25,7 @@ function Checkout() {
     const navigate = useNavigate();
     const { token, isAuthenticated } = useAuth();
     const { confirm, notify } = useNotification();
+    const { formatPrice } = useCurrency();
 
     useEffect(() => {
         const localData = localStorage.getItem('cartItems');
@@ -47,30 +49,26 @@ function Checkout() {
         }
     }, []);
 
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-    };
-
     const itemsPrice = cartItems.reduce((a, c) => a + c.qty * c.price, 0);
 
     const handleConfirmOrder = async () => {
         if (cartItems.length === 0) {
-            alert('Giỏ hàng đang trống.');
+            notify('Giỏ hàng đang trống.', 'warning');
             return;
         }
 
         if (!name || !phone) {
-            alert('Vui lòng điền đầy đủ Họ tên và Số điện thoại.');
+            notify('Vui lòng điền đầy đủ Họ tên và Số điện thoại.', 'warning');
             return;
         }
 
         if (orderType === 'delivery' && !address) {
-            alert('Vui lòng nhập Địa chỉ giao hàng khi chọn hình thức Giao tận nơi.');
+            notify('Vui lòng nhập Địa chỉ giao hàng khi chọn hình thức Giao tận nơi.', 'warning');
             return;
         }
 
         if ((paymentMethod === 'vietqr' || paymentMethod === 'momo') && (!isAuthenticated || !token)) {
-            alert('Vui lòng đăng nhập trước khi sử dụng thanh toán online.');
+            notify('Vui lòng đăng nhập trước khi sử dụng thanh toán online.', 'warning');
             return;
         }
 
@@ -134,13 +132,10 @@ function Checkout() {
                     notify('Đơn hàng đã được tạo. Vui lòng quét mã VietQR để thanh toán.', 'success');
                 } catch (error) {
                     console.error('Error creating VietQR payment:', error);
-                    setPaymentError(
-                        error.response?.data?.message ||
-                            'Không thể tạo phiên thanh toán VietQR. Đơn hàng của bạn vẫn được ghi nhận với phương thức thanh toán tại quầy.'
-                    );
-                    alert(
-                        'Đơn hàng đã được tạo nhưng không thể tạo mã VietQR. Bạn có thể thanh toán khi nhận hàng hoặc tại quầy.'
-                    );
+                    const errorMsg = error.response?.data?.message ||
+                        'Không thể tạo phiên thanh toán VietQR. Đơn hàng của bạn vẫn được ghi nhận với phương thức thanh toán tại quầy.';
+                    setPaymentError(errorMsg);
+                    notify('Đơn hàng đã được tạo nhưng không thể tạo mã VietQR. Bạn có thể thanh toán khi nhận hàng hoặc tại quầy.', 'error');
                 }
                 setIsSubmitting(false);
                 return;
@@ -158,14 +153,14 @@ function Checkout() {
                     if (data && data.payUrl) {
                         window.location.href = data.payUrl;
                     } else {
-                        alert('Không nhận được đường dẫn thanh toán MoMo. Vui lòng chọn phương thức khác.');
+                        notify('Không nhận được đường dẫn thanh toán MoMo. Vui lòng chọn phương thức khác.', 'error');
                         navigate('/');
                     }
                 } catch (error) {
                     console.error('Error creating MoMo payment:', error);
-                    alert(
+                    notify(
                         error.response?.data?.message ||
-                            'Không thể tạo phiên thanh toán MoMo. Vui lòng chọn phương thức khác.'
+                            'Không thể tạo phiên thanh toán MoMo. Vui lòng chọn phương thức khác.', 'error'
                     );
                     navigate('/');
                 } finally {
@@ -178,7 +173,7 @@ function Checkout() {
             navigate('/');
         } catch (error) {
             console.error('Error creating order:', error);
-            alert(error.response?.data?.message || 'Không thể tạo đơn hàng. Vui lòng thử lại.');
+            notify(error.response?.data?.message || 'Không thể tạo đơn hàng. Vui lòng thử lại.', 'error');
         } finally {
             setIsSubmitting(false);
         }
@@ -186,7 +181,7 @@ function Checkout() {
 
     const handleDemoConfirm = async () => {
         if (!paymentId) {
-            alert('Không tìm thấy thông tin phiếu thanh toán để xác nhận demo. Vui lòng tạo lại mã VietQR.');
+            notify('Không tìm thấy thông tin phiếu thanh toán để xác nhận demo. Vui lòng tạo lại mã VietQR.', 'error');
             return;
         }
 
@@ -194,12 +189,13 @@ function Checkout() {
         try {
             const config = { headers: { Authorization: `Bearer ${token}` } };
             await axios.post(`/api/payments/${paymentId}/demo-confirm`, {}, config);
-            alert('Thanh toán đơn hàng (demo) đã được xác nhận. Cảm ơn bạn đã đặt món!');
+            notify('Thanh toán đơn hàng (demo) đã được xác nhận. Cảm ơn bạn đã đặt món!', 'success');
             navigate('/');
         } catch (error) {
             console.error('Demo confirm payment error:', error);
-            setPaymentError(error.response?.data?.message || 'Không thể xác nhận thanh toán demo.');
-            alert('Không thể xác nhận thanh toán demo. Vui lòng thử lại hoặc để nhân viên hỗ trợ.');
+            const errorMsg = error.response?.data?.message || 'Không thể xác nhận thanh toán demo.';
+            setPaymentError(errorMsg);
+            notify(errorMsg + ' Vui lòng thử lại hoặc để nhân viên hỗ trợ.', 'error');
         } finally {
             setIsSubmitting(false);
         }
@@ -207,7 +203,7 @@ function Checkout() {
 
     const handleOpenPreOrderPopup = () => {
         if (!cartItems.length) {
-            alert('Giỏ hàng đang trống, hãy chọn món trước khi chỉnh sửa.');
+            notify('Giỏ hàng đang trống, hãy chọn món trước khi chỉnh sửa.', 'warning');
             return;
         }
         setShowPreOrderPopup(true);

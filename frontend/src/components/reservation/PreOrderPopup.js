@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import './PreOrderPopup.css';
+import { useCurrency } from '../common/CurrencyContext';
 
 export const mockMenu = [
   // Việt Nam
@@ -36,6 +37,7 @@ export default function PreOrderPopup({ onClose, onSubmit, initialItems }) {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { formatPrice } = useCurrency();
 
   useEffect(() => {
     let isMounted = true;
@@ -241,7 +243,7 @@ export default function PreOrderPopup({ onClose, onSubmit, initialItems }) {
                     <div className="menu-info">
                       <div className="menu-name">{dish.name}</div>
                       <div className="menu-price">
-                        {dish.price.toLocaleString("vi-VN")}đ
+                        {formatPrice(dish.price)}
                       </div>
                     </div>
                   </div>
@@ -279,7 +281,7 @@ export default function PreOrderPopup({ onClose, onSubmit, initialItems }) {
                     <div className="cart-info">
                       <strong>{item.name}</strong>
                       <span className="item-subtotal">
-                        {(item.price * item.qty).toLocaleString("vi-VN")}đ
+                        {formatPrice(item.price * item.qty)}
                       </span>
                     </div>
                     <div className="cart-actions">
@@ -311,7 +313,7 @@ export default function PreOrderPopup({ onClose, onSubmit, initialItems }) {
             <div className="cart-summary">
               <div className="cart-total">
                 <span>Tổng cộng:</span>
-                <strong>{total.toLocaleString("vi-VN")}đ</strong>
+                <strong>{formatPrice(total)}</strong>
               </div>
               <button
                 onClick={handleSubmitOrder}

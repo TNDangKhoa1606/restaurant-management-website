@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { useNotification } from '../components/common/NotificationContext';
 import sliderImage from '../assets/images/brlogin.jpg'; 
 
 function InternalLogin() {
@@ -10,6 +11,7 @@ function InternalLogin() {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const { login } = useAuth();
+    const { notify } = useNotification();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -33,6 +35,7 @@ function InternalLogin() {
 
             // Đăng nhập thành công
             login(data.user, data.token);
+            notify('Đăng nhập nội bộ thành công.', 'success');
 
             // Chuyển hướng đến trang dashboard tương ứng với vai trò (đã gộp chung dưới /admin)
             const userRole = data.user.role.toLowerCase();

@@ -1,32 +1,31 @@
 import React from 'react';
-
-// Hàm định dạng giá
-const formatPrice = (price) => {
-    if (price === null) return ''; // Không hiển thị giá nếu là null
-    return new Intl.NumberFormat('vi-VN').format(price);
-};
+import { useCurrency } from '../common/CurrencyContext';
 
 // Component để render một mục trong menu
-const MenuItem = ({ id, name, price, info, onAddToCart }) => (
-    <div className="py-4">
-        <div className="flex items-end justify-between">
-            <h3 className="text-xl font-semibold text-text-dark pr-2">{name}</h3>
-            {/* Dòng chấm chấm sẽ lấp đầy không gian */}
-            <div className="flex-grow border-b-2 border-dotted border-gray-300 mx-2"></div>
-            <span className="text-xl font-bold text-secondary pl-2 whitespace-nowrap">
-                {formatPrice(price)}
-            </span>
+const MenuItem = ({ id, name, price, info, onAddToCart }) => {
+    const { formatPrice } = useCurrency();
+
+    return (
+        <div className="py-4">
+            <div className="flex items-end justify-between">
+                <h3 className="text-xl font-semibold text-text-dark pr-2">{name}</h3>
+                {/* Dòng chấm chấm sẽ lấp đầy không gian */}
+                <div className="flex-grow border-b-2 border-dotted border-gray-300 mx-2"></div>
+                <span className="text-xl font-bold text-secondary pl-2 whitespace-nowrap">
+                    {formatPrice(price)}
+                </span>
+            </div>
+            {info && (
+                <p className="text-text-muted text-sm italic mt-1">{info}</p>
+            )}
+            {onAddToCart && (
+                <button onClick={() => onAddToCart({ id, name, price, info })} className="mt-2 px-4 py-2 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors text-sm">
+                    Thêm vào giỏ
+                </button>
+            )}
         </div>
-        {info && (
-            <p className="text-text-muted text-sm italic mt-1">{info}</p>
-        )}
-        {onAddToCart && (
-            <button onClick={() => onAddToCart({ id, name, price, info })} className="mt-2 px-4 py-2 bg-primary text-white rounded-full hover:bg-primary-hover transition-colors text-sm">
-                Thêm vào giỏ
-            </button>
-        )}
-    </div>
-);
+    );
+};
 
 // Component để render một khu vực menu (ví dụ: Món chính)
 const MenuSection = ({ category, description, items, onAddToCart }) => (

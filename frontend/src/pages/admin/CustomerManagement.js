@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../pages/AuthContext';
 import { useNotification } from '../../components/common/NotificationContext';
+import { useCurrency } from '../../components/common/CurrencyContext';
 
 const getTagInfo = (tag) => {
     switch (tag) {
@@ -17,24 +18,25 @@ const getTagInfo = (tag) => {
     }
 };
 
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-};
-
 const formatDate = (dateString) => {
+
     if (!dateString) return '';
     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
     return new Date(dateString).toLocaleDateString('vi-VN', options);
 };
 
 function CustomerManagement() {
+
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [tagFilter, setTagFilter] = useState('');
     const { token, loading: authLoading } = useAuth();
-    const { confirm } = useNotification();
+    const { formatPrice } = useCurrency();
+
+    const { confirm, notify } = useNotification();
+
     const navigate = useNavigate();
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -75,7 +77,7 @@ function CustomerManagement() {
     }, [searchTerm, tagFilter]);
 
     const handleAction = (action, customerId) => {
-        alert(`Thực hiện: ${action} cho khách hàng ID ${customerId}`);
+        notify(`Thực hiện: ${action} cho khách hàng ID ${customerId}`, 'info');
     };
 
     const handleViewHistory = (customerId) => {
@@ -106,7 +108,7 @@ function CustomerManagement() {
 
             // Cập nhật lại danh sách trên UI
             setCustomers(customers.filter(c => c.id !== customerId));
-            alert('Xóa khách hàng thành công!');
+            notify('Xóa khách hàng thành công!', 'success');
         } catch (err) {
             setError(err.response?.data?.message || 'Không thể xóa khách hàng.');
         }

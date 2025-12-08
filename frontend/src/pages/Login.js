@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext'; // Import useAuth
+import { useNotification } from '../components/common/NotificationContext';
 import sliderImage from '../assets/images/brlogin.jpg'; // Import ảnh nền
 
 function Login() {
@@ -10,6 +11,7 @@ function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const { login } = useAuth(); // Lấy hàm login từ context
+    const { notify } = useNotification();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,6 +39,7 @@ function Login() {
             if (userRole === 'customer') {
                 // Sử dụng hàm login từ context
                 login(data.user, data.token);
+                notify('Đăng nhập thành công.', 'success');
                 // Chuyển hướng về trang chủ
                 navigate('/');
             } else {

@@ -82,24 +82,24 @@ INSERT INTO `categories` (`category_id`, `name`, `description`) VALUES
 -- --------------------------------------------------------
 -- 6. Thêm dữ liệu cho bảng `restauranttables`
 -- --------------------------------------------------------
-INSERT INTO `restauranttables` (`table_id`, `floor_id`, `table_name`, `capacity`, `status`, `pos_x`, `pos_y`) VALUES
--- Tầng 1
-(1, 1, 'A1', 2, 'free', 8, 8),
-(2, 1, 'A2', 2, 'occupied', 26, 8),
-(3, 1, 'A3', 4, 'reserved', 44, 8),
-(4, 1, 'A4', 4, 'free', 62, 8),
-(11, 1, 'B1', 6, 'occupied', 15, 40),
-(12, 1, 'B2', 6, 'free', 38, 40),
-(13, 1, 'B3', 4, 'free', 61, 40),
-(8, 1, 'C1', 2, 'free', 8, 70),
-(9, 1, 'C2', 2, 'reserved', 26, 70),
-(10, 1, 'C3', 4, 'occupied', 44, 70),
-(14, 1, 'C4', 4, 'free', 62, 70),
--- Tầng 2
-(5, 2, 'V1', 8, 'occupied', 10, 20),
-(6, 2, 'V2', 10, 'free', 35, 20),
-(7, 2, 'V3', 12, 'free', 60, 20),
-(15, 2, 'V4', 8, 'free', 10, 60);
+INSERT INTO `restauranttables` (`table_id`, `floor_id`, `table_name`, `capacity`, `price`, `status`, `pos_x`, `pos_y`) VALUES
+-- Tầng 1 (bàn 2 người: 50k, bàn 4 người: 100k, bàn 6 người: 150k)
+(1, 1, 'A1', 2, 50000.00, 'free', 8, 8),
+(2, 1, 'A2', 2, 50000.00, 'occupied', 26, 8),
+(3, 1, 'A3', 4, 100000.00, 'reserved', 44, 8),
+(4, 1, 'A4', 4, 100000.00, 'free', 62, 8),
+(11, 1, 'B1', 6, 150000.00, 'occupied', 15, 40),
+(12, 1, 'B2', 6, 150000.00, 'free', 38, 40),
+(13, 1, 'B3', 4, 100000.00, 'free', 61, 40),
+(8, 1, 'C1', 2, 50000.00, 'free', 8, 70),
+(9, 1, 'C2', 2, 50000.00, 'reserved', 26, 70),
+(10, 1, 'C3', 4, 100000.00, 'occupied', 44, 70),
+(14, 1, 'C4', 4, 100000.00, 'free', 62, 70),
+-- Tầng 2 VIP (bàn 8 người: 250k, bàn 10 người: 300k, bàn 12 người: 350k)
+(5, 2, 'V1', 8, 250000.00, 'occupied', 10, 20),
+(6, 2, 'V2', 10, 300000.00, 'free', 35, 20),
+(7, 2, 'V3', 12, 350000.00, 'free', 60, 20),
+(15, 2, 'V4', 8, 250000.00, 'free', 10, 60);
 
 -- --------------------------------------------------------
 -- 7. Thêm dữ liệu cho bảng `dishes`

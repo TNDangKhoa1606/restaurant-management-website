@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../pages/AuthContext';
+import { useNotification } from '../../components/common/NotificationContext';
 
 const formatDateForInput = (date) => {
     if (!date) return new Date().toISOString().split('T')[0];
@@ -13,6 +14,7 @@ function ShiftManagement() {
     const [error, setError] = useState('');
     const [selectedDate, setSelectedDate] = useState(formatDateForInput());
     const { token, loading: authLoading } = useAuth();
+    const { notify } = useNotification();
 
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
@@ -48,11 +50,11 @@ function ShiftManagement() {
 
     const handleAddShift = () => {
         // Logic để mở modal sẽ được thêm ở đây
-        alert('Mở modal thêm ca làm việc!');
+        notify('Mở modal thêm ca làm việc! (demo)', 'info');
     };
 
     const handleAction = (action, shiftId) => {
-        alert(`Thực hiện: ${action} cho ca làm ID ${shiftId}`);
+        notify(`Thực hiện: ${action} cho ca làm ID ${shiftId}`, 'info');
     };
 
     const totalItems = shifts.length;

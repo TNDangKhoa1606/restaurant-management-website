@@ -2,13 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../pages/AuthContext';
+import { useCurrency } from '../../components/common/CurrencyContext';
 
 // Helper functions (có thể tách ra file riêng nếu muốn)
-const formatPrice = (price) => {
-    if (typeof price !== 'number') return 'N/A';
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-};
-
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
@@ -36,6 +32,8 @@ const getReservationStatusInfo = (status) => {
 
 
 function CustomerHistory() {
+    const { formatPrice } = useCurrency();
+
     const { id } = useParams();
     const { token, loading: authLoading } = useAuth();
     const [customer, setCustomer] = useState(null);

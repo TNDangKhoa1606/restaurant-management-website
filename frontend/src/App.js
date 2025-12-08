@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { AuthProvider, useAuth } from './pages/AuthContext';
-import { BrowserRouter as Router, Routes, Route, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import AdminRoute from './components/routing/AdminRoute'; // Import AdminRoute
 import './App.css';
 import axios from 'axios';
@@ -18,7 +18,6 @@ import Cart from './components/cart/Cart';
 import MenuPage from './pages/MenuPage';
 import BlogPage from './pages/BlogPage';
 import ContactPage from './pages/ContactPage';
-import OnlineOrder from './pages/OnlineOrder';
 import AboutPage from './pages/ServicesPage'; // Sửa lại đường dẫn import cho đúng
 import blogBannerImage from './assets/images/banner-.jpg'; 
 import contactBannerImage from './assets/images/banner-02.jpg'; 
@@ -26,15 +25,11 @@ import BackToTop from './components/common/BackToTop';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
-import Checkout from './pages/Checkout';
 import Reservation from './pages/Reservation';
-import ReservationPayment from './pages/ReservationPayment';
 import UserProfile from './pages/profile/UserProfile';
-import OrderHistory from './pages/profile/OrderHistory';
 import ReservationHistory from './pages/profile/ReservationHistory';
 import ProfileInfo from './pages/profile/ProfileInfo';
 import AddressBook from './pages/profile/AddressBook'; // Import component mới
-import OrderDetail from './pages/profile/OrderDetail'; // Import component mới
 import ChangePassword from './pages/profile/ChangePassword'; // Import component mới
 import TableMenu from './pages/TableMenu';
 import DashboardLayout from './layouts/DashboardLayout'; // Import layout chung mới
@@ -88,9 +83,21 @@ const AuthRequestInterceptor = ({ children }) => {
 
 const ScrollToTop = () => {
   const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
 
   useEffect(() => {
+    const prevPath = prevPathRef.current;
+    const currentPath = location.pathname;
+
+    const isProfileRoute = (path) => path.startsWith('/profile');
+
+    if (isProfileRoute(prevPath) && isProfileRoute(currentPath)) {
+      prevPathRef.current = currentPath;
+      return;
+    }
+
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    prevPathRef.current = currentPath;
   }, [location.pathname]);
 
   return null;
@@ -123,19 +130,9 @@ const MainLayout = ({ cartItems, onCartOpen }) => {
           title: 'Đặt Bàn', 
           image: 'https://images.pexels.com/photos/262047/pexels-photo-262047.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1' 
         };
-      case '/order-online':
-        return {
-          title: 'Đặt món online',
-          image: 'https://images.pexels.com/photos/2347311/pexels-photo-2347311.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1'
-        };
       case '/reservation-payment':
         return { 
           title: 'Thanh toán đặt bàn', 
-          image: 'https://images.pexels.com/photos/5419233/pexels-photo-5419233.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1' 
-        };
-      case '/checkout':
-        return { 
-          title: 'Thanh Toán', 
           image: 'https://images.pexels.com/photos/5419233/pexels-photo-5419233.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1' 
         };
       case '/about':
@@ -193,7 +190,6 @@ const adminConfig = {
   avatarBgColor: 'e74c3c',
   navLinks: [
     { to: '/admin/dashboard', text: 'Dashboard', allowedRoles: ['admin'] }, // Báo cáo
-    { to: '/admin/orders', text: 'Quản lý Đơn hàng', allowedRoles: ['admin', 'receptionist'] }, // Quản lý
     { to: '/admin/reservations', text: 'Quản lý Đặt bàn', allowedRoles: ['admin', 'receptionist'] }, // Quản lý
     { to: '/admin/tables', text: 'Quản lý Bàn ăn', allowedRoles: ['admin', 'waiter'] }, // Quản lý
     { to: '/admin/kitchen-orders', text: 'Món cần chế biến', allowedRoles: ['admin', 'kitchen'] }, // Màn hình bếp
@@ -219,7 +215,6 @@ const adminConfig = {
     '/admin/reservations': 'Quản lý Đặt bàn',
     '/admin/inventory': 'Quản lý kho',
     '/admin/reports': 'Thống kê doanh số',
-    '/admin/orders': 'Quản lý Đơn hàng',
   }
 };
 
@@ -313,16 +308,13 @@ function App() {
                 <Route index element={<HomePage onAddToCart={onAddToCart} />} />
                 <Route path="menu" element={<MenuPage onAddToCart={onAddToCart} />} />
                 <Route path="reservation" element={<Reservation />} />
-                <Route path="reservation-payment" element={<ReservationPayment />} />
-                <Route path="order-online" element={<OnlineOrder />} />
+                <Route path="reservation-payment" element={<Navigate to="/reservation" replace />} />
+                <Route path="order-online" element={<Navigate to="/reservation" replace />} />
                 <Route path="about" element={<AboutPage />} />
                 <Route path="blog" element={<BlogPage />} />
                 <Route path="contact" element={<ContactPage />} />
-                <Route path="checkout" element={<Checkout />} />
                 <Route path="profile" element={<UserProfile />}>
                   <Route index element={<ProfileInfo />} />
-                  <Route path="orders" element={<OrderHistory />} />
-                  <Route path="orders/:orderId" element={<OrderDetail />} />
                   <Route path="reservations" element={<ReservationHistory />} />
                   <Route path="addresses" element={<AddressBook />} />
                   <Route path="change-password" element={<ChangePassword />} />

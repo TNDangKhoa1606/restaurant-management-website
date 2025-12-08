@@ -27,6 +27,23 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- avatar_url: lưu đường dẫn ảnh đại diện người dùng
+SET @col_exists := (
+	SELECT COUNT(*) FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = 'resv01_db'
+	  AND TABLE_NAME = 'users'
+	  AND COLUMN_NAME = 'avatar_url'
+);
+
+SET @sql := IF(@col_exists = 0,
+	'ALTER TABLE users ADD COLUMN `avatar_url` VARCHAR(255) DEFAULT NULL AFTER phone',
+	'SELECT ''Column users.avatar_url already exists'' AS info'
+);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- Đồng bộ dữ liệu từ is_available sang status
 UPDATE dishes 
 SET status = CASE WHEN is_available = 1 THEN 'available' ELSE 'unavailable' END;
@@ -405,6 +422,26 @@ SET @col_exists := (
 SET @sql := IF(@col_exists = 0,
   'ALTER TABLE restauranttables ADD COLUMN `is_group_master` TINYINT(1) DEFAULT 0 AFTER group_name',
   'SELECT ''Column restauranttables.is_group_master already exists'' AS info'
+);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+-- ============================================
+-- 7. Bảng RESERVATIONS: Thêm cột is_checked_out
+--    Đánh dấu đặt bàn đã checkout (bàn đã được giải phóng)
+-- ============================================
+
+SET @col_exists := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = 'resv01_db'
+    AND TABLE_NAME = 'reservations'
+    AND COLUMN_NAME = 'is_checked_out'
+);
+
+SET @sql := IF(@col_exists = 0,
+  'ALTER TABLE reservations ADD COLUMN `is_checked_out` TINYINT(1) NOT NULL DEFAULT 0 AFTER status',
+  'SELECT ''Column reservations.is_checked_out already exists'' AS info'
 );
 
 PREPARE stmt FROM @sql;

@@ -5,6 +5,7 @@ import IngredientModal from '../../components/admin/IngredientModal';
 import SupplyModal from '../../components/admin/SupplyModal';
 import DishModal from '../../components/admin/DishModal'; // Import DishModal
 import { useNotification } from '../../components/common/NotificationContext';
+import { useCurrency } from '../../components/common/CurrencyContext';
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -16,7 +17,8 @@ function InventoryManagement() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { token, loading: authLoading } = useAuth();
-    const { confirm } = useNotification();
+    const { confirm, notify } = useNotification();
+    const { formatPrice } = useCurrency();
 
     const [isIngredientModalOpen, setIngredientModalOpen] = useState(false);
     const [editingIngredient, setEditingIngredient] = useState(null);
@@ -93,7 +95,7 @@ function InventoryManagement() {
             });
             fetchData(activeTab);
         } catch (err) {
-            alert(`Lỗi khi xóa: ${err.response?.data?.message || err.message}`);
+            notify(`Lỗi khi xóa: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 
@@ -108,7 +110,7 @@ function InventoryManagement() {
             setIngredientModalOpen(false);
             fetchData(activeTab);
         } catch (err) {
-            alert(`Lỗi khi lưu: ${err.response?.data?.message || err.message}`);
+            notify(`Lỗi khi lưu: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 
@@ -142,7 +144,7 @@ function InventoryManagement() {
             });
             fetchData(activeTab);
         } catch (err) {
-            alert(`Lỗi khi xóa: ${err.response?.data?.message || err.message}`);
+            notify(`Lỗi khi xóa: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 
@@ -157,7 +159,7 @@ function InventoryManagement() {
             setSupplyModalOpen(false);
             fetchData(activeTab);
         } catch (err) {
-            alert(`Lỗi khi lưu: ${err.response?.data?.message || err.message}`);
+            notify(`Lỗi khi lưu: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 
@@ -191,7 +193,7 @@ function InventoryManagement() {
             });
             fetchData(activeTab);
         } catch (err) {
-            alert(`Lỗi khi xóa: ${err.response?.data?.message || err.message}`);
+            notify(`Lỗi khi xóa: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 
@@ -225,7 +227,7 @@ function InventoryManagement() {
             setDishModalOpen(false);
             fetchData(activeTab);
         } catch (err) {
-            alert(`Lỗi khi lưu: ${err.response?.data?.message || err.message}`);
+            notify(`Lỗi khi lưu: ${err.response?.data?.message || err.message}`, 'error');
         }
     };
 

@@ -32,6 +32,7 @@ function GoogleAuthHandler() {
                     email: decodedPayload.email,
                     phone: decodedPayload.phone,
                     role: decodedPayload.role,
+                    avatar: decodedPayload.avatar || null,
                 };
 
                 // Gọi hàm login từ AuthContext để cập nhật trạng thái toàn cục

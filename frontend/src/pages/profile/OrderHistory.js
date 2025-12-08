@@ -3,10 +3,7 @@ import { Link, useInRouterContext } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
 import './OrderHistory.css'; 
-
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-};
+import { useCurrency } from '../../components/common/CurrencyContext';
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -29,7 +26,35 @@ const getStatusInfo = (status) => {
     }
 };
 
+const buildItemsSummaryText = (order) => {
+    if (!order) return 'Không có thông tin món ăn.';
+
+    if (order.is_deposit_order) {
+        return 'Đơn cọc đặt bàn (không có món ăn chi tiết).';
+    }
+
+    const items = Array.isArray(order.items) ? order.items : [];
+    if (items.length === 0) {
+        return 'Không có thông tin món ăn.';
+    }
+
+    const maxPreview = 2;
+    const previewItems = items.slice(0, maxPreview).map((item) => {
+        const quantity = item.quantity || 0;
+        const name = item.dish_name || '';
+        return `${quantity} x ${name}`;
+    });
+
+    const remaining = items.length - previewItems.length;
+    if (remaining > 0) {
+        return `${previewItems.join(', ')}, +${remaining} món khác`;
+    }
+
+    return previewItems.join(', ');
+};
+
 const OrderHistory = () => {
+    const { formatPrice } = useCurrency();
     const inRouter = useInRouterContext();
     const { token, isAuthenticated, loading: authLoading } = useAuth();
     const [orders, setOrders] = useState([]);
@@ -93,14 +118,20 @@ const OrderHistory = () => {
                     const statusInfo = getStatusInfo(order.status);
                     const id = order.order_id;
                     const total = order.total_amount;
-
                     const detailLink = `/profile/orders/${id}`;
+                    const itemsSummaryText = buildItemsSummaryText(order);
 
                     return (
                         <div key={id} className="order-card">
                             <div className="order-card-header">
                                 <span className="order-id">Đơn hàng: {id}</span>
                                 <span className={`order-status ${statusInfo.className}`}>{statusInfo.text}</span>
+                            </div>
+                            <div className="order-card-body">
+                                <div className="order-items-summary">
+                                    <span className="order-items-summary-label">Món:</span>
+                                    <span className="order-items-summary-text">{itemsSummaryText}</span>
+                                </div>
                             </div>
                             <div className="order-card-footer">
                                 <span className="order-date">Ngày đặt: {formatDate(order.placed_at)}</span>

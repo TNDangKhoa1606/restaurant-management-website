@@ -9,7 +9,9 @@ const pool = mysql.createPool({
     database: process.env.DB_DATABASE || 'resv01_db',
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    // Giữ nguyên DATE/DATETIME dưới dạng string, không convert sang JS Date (tránh lệch timezone)
+    dateStrings: true,
 });
 
 // Kiểm tra kết nối khi server khởi động

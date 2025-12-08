@@ -4,6 +4,7 @@ const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
 const path = require('path');
+const http = require('http');
 
 const menuRoutes = require('./routes/menuRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -14,6 +15,9 @@ const tableRoutes = require('./routes/tableRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const exchangeRateRoutes = require('./routes/exchangeRateRoutes');
+const { autoExpireUnpaidReservations } = require('./controllers/reservationController');
+const { initSocket } = require('./socket');
 
 require('./config/passport')(passport);
 
@@ -42,13 +46,33 @@ app.use('/api/tables', tableRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/exchange-rate', exchangeRateRoutes);
 
 app.get('/', (req, res) => {
     res.send('Backend server is running!');
 });
 
+const startReservationExpiryJob = () => {
+    const seconds = parseInt(process.env.RESERVATION_EXPIRE_POLL_SECONDS || '300', 10);
+    const intervalMs = !seconds || seconds <= 0 ? 300000 : seconds * 1000;
+
+    setInterval(async () => {
+        try {
+            await autoExpireUnpaidReservations();
+        } catch (error) {
+            console.error('Reservation expiry job error:', error);
+        }
+    }, intervalMs);
+};
+
+startReservationExpiryJob();
+
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+
+initSocket(server);
+
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

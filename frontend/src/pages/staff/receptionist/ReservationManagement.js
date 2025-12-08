@@ -1,8 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../AuthContext';
+import { useNotification } from '../../../components/common/NotificationContext';
 
-const getStatusInfo = (status) => {
+const getStatusInfo = (reservation) => {
+    if (!reservation) {
+        return { text: 'Không rõ', className: '' };
+    }
+
+    const { status, is_checked_out } = reservation;
+
     switch (status) {
         case 'pending':
         case 'booked':
@@ -11,8 +18,13 @@ const getStatusInfo = (status) => {
             return { text: 'Đã xác nhận', className: 'status-confirmed' };
         case 'cancelled':
             return { text: 'Đã hủy', className: 'status-cancelled' };
-        case 'completed':
-            return { text: 'Hoàn thành', className: 'status-completed' };
+        case 'completed': {
+            if (is_checked_out) {
+                return { text: 'Đã checkout', className: 'status-completed' };
+            }
+            // completed bây giờ nghĩa là khách đang ngồi ăn
+            return { text: 'Đang phục vụ', className: 'status-completed' };
+        }
         default:
             return { text: status, className: '' };
     }
@@ -38,10 +50,11 @@ function ReservationManagement() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [filters, setFilters] = useState({
-        date: new Date().toISOString().substring(0, 10),
+        date: new Date().toLocaleDateString('sv-SE'),
         status: '',
     });
     const { token } = useAuth();
+    const { notify } = useNotification();
 
     const fetchReservations = useCallback(async () => {
         if (!token) return;
@@ -80,7 +93,7 @@ function ReservationManagement() {
             await axios.put(`/api/reservations/${reservationId}/status`, { status: newStatus }, config);
             fetchReservations();
         } catch (err) {
-            alert(err.response?.data?.message || 'Không thể cập nhật trạng thái đặt bàn.');
+            notify(err.response?.data?.message || 'Không thể cập nhật trạng thái đặt bàn.', 'error');
         }
     };
 
@@ -91,16 +104,28 @@ function ReservationManagement() {
             await axios.post(`/api/reservations/${reservationId}/mark-deposit-cash`, {}, config);
             fetchReservations();
         } catch (err) {
-            alert(err.response?.data?.message || 'Không thể ghi nhận tiền cọc tiền mặt.');
+            notify(err.response?.data?.message || 'Không thể ghi nhận tiền cọc tiền mặt.', 'error');
+        }
+    };
+
+    const handleCheckout = async (reservationId) => {
+        if (!token) return;
+        try {
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+            await axios.post(`/api/reservations/${reservationId}/checkout`, {}, config);
+            notify('Checkout thành công. Bàn đã được giải phóng.', 'success');
+            fetchReservations();
+        } catch (err) {
+            notify(err.response?.data?.message || 'Không thể checkout.', 'error');
         }
     };
 
     const handleAction = (action, reservationId) => {
         if (action === 'Đặt bàn hộ khách') {
-            alert('Chức năng Đặt bàn hộ khách sẽ được bổ sung sau.');
+            notify('Chức năng Đặt bàn hộ khách sẽ được bổ sung sau.', 'info');
             return;
         }
-        alert(`Thực hiện: ${action} cho đặt bàn ID ${reservationId}`);
+        notify(`Thực hiện: ${action} cho đặt bàn ID ${reservationId}`, 'info');
     };
 
     return (
@@ -124,7 +149,7 @@ function ReservationManagement() {
                         <option value="">Tất cả trạng thái</option>
                         <option value="booked">Chờ xác nhận</option>
                         <option value="cancelled">Đã hủy</option>
-                        <option value="completed">Hoàn thành</option>
+                        <option value="completed">Đang phục vụ</option>
                     </select>
 
                     <button onClick={() => handleAction('Đặt bàn hộ khách')} className="btn-admin btn-admin-primary">
@@ -154,7 +179,7 @@ function ReservationManagement() {
                         </thead>
                         <tbody>
                             {reservationList.length > 0 ? reservationList.map(res => {
-                                const statusInfo = getStatusInfo(res.status);
+                                const statusInfo = getStatusInfo(res);
                                 const depositInfo = getDepositStatusInfo(res);
                                 return (
                                     <tr key={res.reservation_id}>
@@ -185,9 +210,27 @@ function ReservationManagement() {
                                             )}
                                             {res.status === 'booked' && (
                                                 <>
-                                                    <button onClick={() => handleStatusChange(res.reservation_id, 'completed')} className="action-btn btn-checkin">Hoàn thành</button>
-                                                    <button onClick={() => handleStatusChange(res.reservation_id, 'cancelled')} className="action-btn btn-delete">Hủy</button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(res.reservation_id, 'completed')}
+                                                        className="action-btn btn-checkin"
+                                                    >
+                                                        Khách đến
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(res.reservation_id, 'cancelled')}
+                                                        className="action-btn btn-delete"
+                                                    >
+                                                        Hủy
+                                                    </button>
                                                 </>
+                                            )}
+                                            {res.status === 'completed' && !res.is_checked_out && (
+                                                <button
+                                                    onClick={() => handleCheckout(res.reservation_id)}
+                                                    className="action-btn btn-checkin"
+                                                >
+                                                    Checkout (Giải phóng bàn)
+                                                </button>
                                             )}
                                         </td>
                                     </tr>

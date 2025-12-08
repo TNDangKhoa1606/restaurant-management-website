@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './MenuPage.css';
+import { useCurrency } from '../components/common/CurrencyContext';
 
 // --- Dữ liệu mẫu cho thực đơn ---
 const fallbackMenuData = {
@@ -41,39 +42,49 @@ const fallbackMenuData = {
 };
 
 // Component cho một danh mục món ăn
-const MenuCategoryCard = ({ title, image, items }) => (
-    <div className="menu-category-card">
-        <div className="card-inner">
-            <div className="card-image-wrapper">
-                <img src={image} alt={title} />
+const MenuCategoryCard = ({ title, image, items }) => {
+    const { formatPrice } = useCurrency();
+
+    const renderItemText = (item) => {
+        if (!item) return '';
+
+        if (typeof item === 'string') {
+            return item;
+        }
+
+        const name = item.name || '';
+        const price = item.price;
+
+        if (price === null || price === undefined) {
+            return name;
+        }
+
+        return `${name} – ${formatPrice(price)}`;
+    };
+
+    return (
+        <div className="menu-category-card">
+            <div className="card-inner">
+                <div className="card-image-wrapper">
+                    <img src={image} alt={title} />
+                </div>
+                <h3 className="card-title">{title}</h3>
+                <ul className="card-item-list">
+                    {items.map((item, index) => (
+                        <li key={index}>{renderItemText(item)}</li>
+                    ))}
+                </ul>
             </div>
-            <h3 className="card-title">{title}</h3>
-            <ul className="card-item-list">
-                {items.map((item, index) => (
-                    <li key={index}>{item}</li>
-                ))}
-            </ul>
         </div>
-    </div>
-);
+    );
+};
 
 const MenuPage = () => {
     const [activeTab, setActiveTab] = useState('mainDishes');
     const [menuData, setMenuData] = useState(fallbackMenuData);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
-    const formatPrice = (price) => {
-        if (price === null || price === undefined) return '';
-        try {
-            return new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND',
-            }).format(price);
-        } catch (e) {
-            return `${price} VND`;
-        }
-    };
+    const { formatPrice } = useCurrency();
 
     const getCategoryImage = (categoryName) => {
         switch (categoryName) {
@@ -125,7 +136,10 @@ const MenuPage = () => {
 
         items.forEach((item) => {
             const name = item.name || '';
-            const displayName = item.price ? `${item.name} – ${formatPrice(item.price)}` : item.name;
+            const dishItem = {
+                name,
+                price: item.price,
+            };
 
             // Việt Nam: phở, bún, mì Quảng, Huế, riêu
             if (
@@ -138,7 +152,7 @@ const MenuPage = () => {
                     'việt',
                 ])
             ) {
-                groups.vietnam.items.push(displayName);
+                groups.vietnam.items.push(dishItem);
                 return;
             }
 
@@ -152,7 +166,7 @@ const MenuPage = () => {
                     'bulgogi',
                 ])
             ) {
-                groups.korea.items.push(displayName);
+                groups.korea.items.push(dishItem);
                 return;
             }
 
@@ -166,7 +180,7 @@ const MenuPage = () => {
                     'thái',
                 ])
             ) {
-                groups.thailand.items.push(displayName);
+                groups.thailand.items.push(dishItem);
                 return;
             }
 
@@ -180,7 +194,7 @@ const MenuPage = () => {
                     'malaysia',
                 ])
             ) {
-                groups.singaporeMalaysia.items.push(displayName);
+                groups.singaporeMalaysia.items.push(dishItem);
                 return;
             }
 
@@ -194,7 +208,7 @@ const MenuPage = () => {
                     'nhật',
                 ])
             ) {
-                groups.japan.items.push(displayName);
+                groups.japan.items.push(dishItem);
                 return;
             }
 
@@ -210,7 +224,7 @@ const MenuPage = () => {
                     'pasta',
                 ])
             ) {
-                groups.italy.items.push(displayName);
+                groups.italy.items.push(dishItem);
                 return;
             }
 
@@ -222,12 +236,12 @@ const MenuPage = () => {
                     'trung hoa',
                 ])
             ) {
-                groups.china.items.push(displayName);
+                groups.china.items.push(dishItem);
                 return;
             }
 
             // Còn lại
-            groups.others.items.push(displayName);
+            groups.others.items.push(dishItem);
         });
 
         return Object.values(groups).filter((group) => group.items.length > 0);
@@ -264,9 +278,10 @@ const MenuPage = () => {
                             mainDishes.push({
                                 title: group.category,
                                 image: getCategoryImage(group.category),
-                                items: group.items.map((item) =>
-                                    item.price ? `${item.name} – ${formatPrice(item.price)}` : item.name
-                                ),
+                                items: group.items.map((item) => ({
+                                    name: item.name,
+                                    price: item.price,
+                                })),
                             });
                         }
                     });
@@ -278,9 +293,10 @@ const MenuPage = () => {
                         sidesAndDrinks.push({
                             title: group.category,
                             image: getCategoryImage(group.category),
-                            items: group.items.map((item) =>
-                                item.price ? `${item.name} – ${formatPrice(item.price)}` : item.name
-                            ),
+                            items: group.items.map((item) => ({
+                                name: item.name,
+                                price: item.price,
+                            })),
                         });
                     });
                 }

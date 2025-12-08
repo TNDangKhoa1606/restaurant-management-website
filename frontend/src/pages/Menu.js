@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Menu.css'; // CSS cho trang Menu
+import { useCurrency } from '../components/common/CurrencyContext';
 
 // --- Dữ liệu giả lập ---
 const menuData = {
@@ -22,11 +23,9 @@ const menuData = {
     ]
 };
 
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-};
-
 function Menu({ onAddToCart }) {
+    const { formatPrice } = useCurrency();
+
     const [selectedCategory, setSelectedCategory] = useState('all');
 
     const filteredItems = selectedCategory === 'all'

@@ -4,6 +4,7 @@ import axios from 'axios';
 import './TableMenu.css';
 import { mockMenu } from '../components/reservation/PreOrderPopup';
 import { useNotification } from '../components/common/NotificationContext';
+import { useCurrency } from '../components/common/CurrencyContext';
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -12,6 +13,7 @@ const formatPrice = (price) => {
 function TableMenu() {
     const { tableId } = useParams(); // Lấy tableId từ URL
     const { notify } = useNotification();
+    const { formatPrice } = useCurrency();
 
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [orderItems, setOrderItems] = useState([]);

@@ -18,8 +18,25 @@
     padding-right: 20px;
 }
 
-.reservation-image-wrapper {
+.reservation-right-column {
     flex: 1 1 45%;
+}
+
+.reservation-actions {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.reservation-action-button {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+}
+
+.reservation-image-wrapper {
     height: 600px;
     border-radius: 12px;
     overflow: hidden;
@@ -89,6 +106,10 @@
 @media (max-width: 992px) {
     .reservation-container {
         flex-direction: column-reverse;
+    }
+
+    .reservation-right-column {
+        width: 100%;
     }
 
     .reservation-image-wrapper {
@@ -271,6 +292,97 @@
 .table-map-modal-body {
     flex: 1;
     overflow: auto;
+}
+
+/* --- Payment Modal (Thanh toán tiền cọc) --- */
+.payment-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+}
+
+.payment-modal {
+    width: 100%;
+    max-width: 1200px;
+    max-height: 95vh;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.payment-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.payment-modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.payment-modal-close-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.payment-modal-close-btn:hover {
+    color: var(--color-primary);
+}
+
+.payment-modal-body {
+    flex: 1;
+    overflow: auto;
+    padding: 24px 20px;
+}
+
+.reopen-payment-wrapper {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.reopen-payment-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--color-primary);
+    background-color: #fff;
+    color: var(--color-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.reopen-payment-btn:hover {
+    background-color: var(--color-primary);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .payment-modal-overlay {
+        padding: 10px;
+    }
+
+    .payment-modal {
+        max-height: 95vh;
+        border-radius: 8px;
+    }
 }
 
 @media (max-width: 768px) {

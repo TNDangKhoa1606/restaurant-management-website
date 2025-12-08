@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNotification } from '../components/common/NotificationContext';
 import sliderImage from '../assets/images/brlogin.jpg'; // Tái sử dụng ảnh nền
 
 function ResetPasswordPage() {
@@ -10,6 +11,7 @@ function ResetPasswordPage() {
     const [isLoading, setIsLoading] = useState(false);
     const { token } = useParams();
     const navigate = useNavigate();
+    const { notify } = useNotification();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -44,13 +46,16 @@ function ResetPasswordPage() {
                 throw new Error(data.message || 'Đã có lỗi xảy ra. Token có thể đã hết hạn.');
             }
 
-            setSuccess(data.message + ' Bạn sẽ được chuyển đến trang đăng nhập sau vài giây.');
+            const baseMessage = data.message || 'Đặt lại mật khẩu thành công.';
+            setSuccess(baseMessage + ' Bạn sẽ được chuyển đến trang đăng nhập sau vài giây.');
+            notify(baseMessage, 'success');
             setTimeout(() => {
                 navigate('/login');
             }, 3000);
 
         } catch (err) {
             setError(err.message);
+            notify(err.message || 'Đã có lỗi xảy ra. Token có thể đã hết hạn.', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -75,9 +80,7 @@ function ResetPasswordPage() {
                         {isLoading ? 'Đang cập nhật...' : 'Đặt lại mật khẩu'}
                     </button>
 
-                    {success && <div className="mt-4 bg-green-500/30 border border-green-500 text-white px-4 py-3 rounded-md" role="alert">
-                        <p>{success}</p>
-                    </div>}
+                    {/* Chỉ hiển thị lỗi; thông báo thành công đã dùng popup notify */}
                     {error && <div className="mt-4 bg-red-500/30 border border-red-500 text-white px-4 py-3 rounded-md" role="alert">
                         <p>{error}</p>
                     </div>}
