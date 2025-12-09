@@ -120,14 +120,6 @@ function ReservationManagement() {
         }
     };
 
-    const handleAction = (action, reservationId) => {
-        if (action === 'Đặt bàn hộ khách') {
-            notify('Chức năng Đặt bàn hộ khách sẽ được bổ sung sau.', 'info');
-            return;
-        }
-        notify(`Thực hiện: ${action} cho đặt bàn ID ${reservationId}`, 'info');
-    };
-
     return (
         <div className="admin-list-container">
             <div className="admin-page-header">
@@ -151,10 +143,6 @@ function ReservationManagement() {
                         <option value="cancelled">Đã hủy</option>
                         <option value="completed">Đang phục vụ</option>
                     </select>
-
-                    <button onClick={() => handleAction('Đặt bàn hộ khách')} className="btn-admin btn-admin-primary">
-                        Đặt bàn hộ khách
-                    </button>
                 </div>
             </div>
 
@@ -203,33 +191,41 @@ function ReservationManagement() {
                                             {res.deposit_order_id && !res.deposit_is_paid && (
                                                 <button
                                                     onClick={() => handleMarkDepositCash(res.reservation_id)}
-                                                    className="action-btn btn-checkin"
+                                                    className="action-btn btn-confirm"
+                                                    data-tooltip="Nhận cọc tiền mặt"
+                                                    title="Nhận cọc tiền mặt"
                                                 >
-                                                    Đã nhận cọc (tiền mặt)
+                                                    💵
                                                 </button>
                                             )}
                                             {res.status === 'booked' && (
                                                 <>
                                                     <button
                                                         onClick={() => handleStatusChange(res.reservation_id, 'completed')}
-                                                        className="action-btn btn-checkin"
+                                                        className="action-btn btn-confirm"
+                                                        data-tooltip="Khách đến"
+                                                        title="Khách đến"
                                                     >
-                                                        Khách đến
+                                                        ✅
                                                     </button>
                                                     <button
                                                         onClick={() => handleStatusChange(res.reservation_id, 'cancelled')}
                                                         className="action-btn btn-delete"
+                                                        data-tooltip="Hủy đặt bàn"
+                                                        title="Hủy đặt bàn"
                                                     >
-                                                        Hủy
+                                                        🗑️
                                                     </button>
                                                 </>
                                             )}
                                             {res.status === 'completed' && !res.is_checked_out && (
                                                 <button
                                                     onClick={() => handleCheckout(res.reservation_id)}
-                                                    className="action-btn btn-checkin"
+                                                    className="action-btn btn-view"
+                                                    data-tooltip="Checkout"
+                                                    title="Checkout"
                                                 >
-                                                    Checkout (Giải phóng bàn)
+                                                    🚪
                                                 </button>
                                             )}
                                         </td>

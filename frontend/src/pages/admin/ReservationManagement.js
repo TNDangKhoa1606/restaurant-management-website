@@ -193,11 +193,6 @@ function ReservationManagement() {
                         <option value="completed">Đang phục vụ</option>
                     </select>
 
-                    {canManageReservations && (
-                        <button onClick={() => handleAction('Đặt bàn hộ khách')} className="btn-admin btn-admin-primary">
-                            Đặt bàn hộ khách
-                        </button>
-                    )}
                 </div>
             </div>
 
@@ -263,20 +258,41 @@ function ReservationManagement() {
                                             {canManageReservations && res.deposit_order_id && !res.deposit_is_paid && (
                                                 <button
                                                     onClick={() => handleMarkDepositCash(res.reservation_id)}
-                                                    className="action-btn btn-checkin"
+                                                    className="action-btn btn-confirm"
+                                                    data-tooltip="Nhận cọc tiền mặt"
+                                                    title="Nhận cọc tiền mặt"
                                                 >
-                                                    Đã nhận cọc (tiền mặt)
+                                                    💵
                                                 </button>
                                             )}
                                             {canManageReservations && res.status === 'booked' && (
                                                 <>
-                                                    <button onClick={() => handleStatusChange(res.reservation_id, 'completed')} className="action-btn btn-checkin">Khách đến</button>
-                                                    <button onClick={() => handleStatusChange(res.reservation_id, 'cancelled')} className="action-btn btn-delete">Hủy</button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(res.reservation_id, 'completed')}
+                                                        className="action-btn btn-confirm"
+                                                        data-tooltip="Khách đến"
+                                                        title="Khách đến"
+                                                    >
+                                                        ✅
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(res.reservation_id, 'cancelled')}
+                                                        className="action-btn btn-delete"
+                                                        data-tooltip="Hủy đặt bàn"
+                                                        title="Hủy đặt bàn"
+                                                    >
+                                                        🗑️
+                                                    </button>
                                                 </>
                                             )}
                                             {res.status === 'completed' && !res.is_checked_out && (
-                                                <button onClick={() => handleCheckout(res.reservation_id)} className="action-btn btn-checkin">
-                                                    Checkout (Giải phóng bàn)
+                                                <button
+                                                    onClick={() => handleCheckout(res.reservation_id)}
+                                                    className="action-btn btn-view"
+                                                    data-tooltip="Checkout"
+                                                    title="Checkout"
+                                                >
+                                                    🚪
                                                 </button>
                                             )}
                                         </td>

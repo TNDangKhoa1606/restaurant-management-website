@@ -76,20 +76,12 @@ const TableModal = ({ isOpen, onClose, onSave, onDelete, table, floors, currentF
                         ))}
                     </select>
                 </div>
-                <div className="form-group">
-                    <label>Vị trí X (%)</label>
-                    <input type="number" name="pos_x" value={formData.pos_x} onChange={handleChange} min="0" max="100" />
-                </div>
-                <div className="form-group">
-                    <label>Vị trí Y (%)</label>
-                    <input type="number" name="pos_y" value={formData.pos_y} onChange={handleChange} min="0" max="100" />
-                </div>
                 <div className="modal-actions">
-                    <button onClick={onClose} className="cancel-btn">Hủy</button>
-                    {table && ( // Chỉ hiển thị nút xóa khi đang chỉnh sửa
-                        <button onClick={() => onDelete(table.table_id)} className="delete-btn">Xóa bàn</button>
+                    <button type="button" onClick={onClose} className="btn-admin btn-admin-secondary">Hủy</button>
+                    {table && (
+                        <button type="button" onClick={() => onDelete(table.table_id)} className="btn-admin btn-admin-danger">Xóa bàn</button>
                     )}
-                    <button onClick={handleSave} className="save-btn">Lưu</button>
+                    <button type="button" onClick={handleSave} className="btn-admin btn-admin-primary">Lưu</button>
                 </div>
             </div>
         </div>

@@ -43,7 +43,6 @@ import EmployeeList from './pages/admin/EmployeeList';
 import RolePermissions from './pages/admin/RolePermissions';
 import ShiftManagement from './pages/admin/ShiftManagement';
 import InventoryManagement from './pages/admin/InventoryManagement';
-import SalesReport from './pages/admin/SalesReport';
 import OrderManagement from './pages/admin/OrderManagement'; // Thêm import
 import CustomerManagement from './pages/admin/CustomerManagement'; // Thêm import
 import VerifyEmailPage from './pages/VerifyEmailPage'; // Thêm trang xác thực email
@@ -52,14 +51,17 @@ import GoogleAuthHandler from './pages/GoogleAuthHandler'; // Thêm trang xử l
 import InternalLogin from './pages/InternalLogin'; // Import trang đăng nhập nội bộ
 import CustomerHistory from './pages/admin/CustomerHistory';
 import SendPromotion from './pages/admin/SendPromotion';
+import ReviewManagement from './pages/admin/ReviewManagement';
 import PaymentResult from './pages/PaymentResult';
+import VietQRPayment from './pages/payment/VietQRPayment';
 import profileBannerImage from './assets/images/slider-1.jpg';
 
 // --- Component để xử lý lỗi 401 một cách tập trung ---
 // Component này phải được đặt bên trong <Router> để có thể dùng useNavigate
 const AuthRequestInterceptor = ({ children }) => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // useMemo để đảm bảo interceptor chỉ được thiết lập một lần
   useMemo(() => {
@@ -68,9 +70,27 @@ const AuthRequestInterceptor = ({ children }) => {
       (error) => {
         // Kiểm tra nếu lỗi là 401 (Unauthorized)
         if (error.response && error.response.status === 401) {
+          const currentPath = window.location.pathname;
+          
+          // Bỏ qua trang payment vì nó tự xử lý redirect
+          if (currentPath.startsWith('/payment/')) {
+            return Promise.reject(error);
+          }
+          
           console.log("Lỗi 401 từ Interceptor, tự động đăng xuất.");
           logout();
-          navigate('/internal/login', { replace: true }); // Chuyển hướng về trang đăng nhập nội bộ
+          
+          // Chỉ check path để quyết định redirect
+          const isInternalPath = currentPath.startsWith('/admin') || 
+                                currentPath.startsWith('/staff') ||
+                                currentPath.startsWith('/waiter');
+          
+          // Redirect về đúng trang login
+          if (isInternalPath) {
+            navigate('/internal/login', { replace: true });
+          } else {
+            navigate('/login', { replace: true });
+          }
         }
         return Promise.reject(error);
       }
@@ -191,25 +211,25 @@ const adminConfig = {
   roleName: 'Quản trị viên',
   avatarBgColor: 'e74c3c',
   navLinks: [
-    { to: '/admin/dashboard', text: 'Dashboard', allowedRoles: ['admin'] }, // Báo cáo
-    { to: '/admin/reservations', text: 'Quản lý Đặt bàn', allowedRoles: ['admin', 'receptionist'] }, // Quản lý
-    { to: '/admin/tables', text: 'Quản lý Bàn ăn', allowedRoles: ['admin', 'waiter'] }, // Quản lý
-    { to: '/admin/kitchen-orders', text: 'Món cần chế biến', allowedRoles: ['admin', 'kitchen'] }, // Màn hình bếp
-    { to: '/admin/inventory', text: 'Quản lý Kho', allowedRoles: ['admin'] }, // Quản lý
-    { to: '/admin/employees', text: 'Quản lý Nhân viên', allowedRoles: ['admin'] }, // Con người
-    { to: '/admin/customers', text: 'Quản lý Khách hàng', allowedRoles: ['admin'] }, // Con người
-    { to: '/admin/shifts', text: 'Quản lý Ca làm', allowedRoles: ['admin'] }, // Con người
-    { to: '/admin/permissions', text: 'Phân quyền', allowedRoles: ['admin'] }, // Hệ thống
-    { to: '/admin/create-account', text: 'Tạo tài khoản', allowedRoles: ['admin'] }, // Hệ thống
-    { to: '/admin/send-promotion', text: 'Gửi khuyến mãi', allowedRoles: ['admin'] }, // Marketing
-    { to: '/admin/reports', text: 'Thống kê doanh số', allowedRoles: ['admin'] },
+    { to: '/admin/dashboard', text: 'Dashboard & Báo cáo', allowedRoles: ['admin'] },
+    { to: '/admin/reservations', text: 'Quản lý Đặt bàn', allowedRoles: ['admin', 'receptionist'] },
+    { to: '/admin/tables', text: 'Quản lý Bàn ăn', allowedRoles: ['admin', 'waiter'] },
+    { to: '/admin/kitchen-orders', text: 'Món cần chế biến', allowedRoles: ['admin', 'kitchen'] },
+    { to: '/admin/inventory', text: 'Quản lý Kho', allowedRoles: ['admin'] },
+    { to: '/admin/employees', text: 'Quản lý Nhân viên', allowedRoles: ['admin'] },
+    { to: '/admin/customers', text: 'Quản lý Khách hàng', allowedRoles: ['admin'] },
+    { to: '/admin/shifts', text: 'Quản lý Ca làm', allowedRoles: ['admin'] },
+    { to: '/admin/permissions', text: 'Phân quyền', allowedRoles: ['admin'] },
+    { to: '/admin/create-account', text: 'Tạo tài khoản', allowedRoles: ['admin'] },
+    { to: '/admin/send-promotion', text: 'Gửi khuyến mãi', allowedRoles: ['admin'] },
+    { to: '/admin/reviews', text: 'Đánh giá dịch vụ', allowedRoles: ['admin'] },
   ],
   pageTitles: {
-    '/admin': 'Dashboard',
-    '/admin/dashboard': 'Dashboard',
+    '/admin': 'Dashboard & Báo cáo',
+    '/admin/dashboard': 'Dashboard & Báo cáo',
     '/admin/employees': 'Danh sách nhân viên',
     '/admin/customers': 'Quản lý Khách hàng',
-    '/admin/customer-history/:id': 'Lịch sử Khách hàng', // Thêm tiêu đề cho trang mới
+    '/admin/customer-history/:id': 'Lịch sử Khách hàng',
     '/admin/create-account': 'Tạo tài khoản',
     '/admin/permissions': 'Phân quyền chức năng',
     '/admin/shifts': 'Quản lý ca làm việc',
@@ -217,8 +237,8 @@ const adminConfig = {
     '/admin/kitchen-orders': 'Món cần chế biến',
     '/admin/reservations': 'Quản lý Đặt bàn',
     '/admin/inventory': 'Quản lý kho',
-    '/admin/reports': 'Thống kê doanh số',
     '/admin/send-promotion': 'Gửi khuyến mãi',
+    '/admin/reviews': 'Đánh giá dịch vụ',
   }
 };
 
@@ -303,6 +323,7 @@ function App() {
               <Route path="/table/:tableId" element={<TableMenu />} />
               <Route path="/waiter/order/:tableId" element={<TableMenu />} />
               <Route path="/payment/result" element={<PaymentResult />} />
+              <Route path="/payment/vietqr/:paymentId" element={<VietQRPayment />} />
               <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
               <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
               <Route path="/google-auth-handler" element={<GoogleAuthHandler />} />
@@ -340,10 +361,11 @@ function App() {
                   <Route path="tables" element={<TableMap />} />
                   <Route path="kitchen-orders" element={<KitchenOrders />} />
                   <Route path="inventory" element={<InventoryManagement />} />
-                  <Route path="reports" element={<SalesReport />} />
+                  <Route path="reports" element={<Navigate to="/admin/dashboard" replace />} />
                   <Route path="orders" element={<OrderManagement />} />
                   <Route path="reservations" element={<ReservationManagement />} />
                   <Route path="send-promotion" element={<SendPromotion />} />
+                  <Route path="reviews" element={<ReviewManagement />} />
                 </Route>
               </Route>
             </Routes>

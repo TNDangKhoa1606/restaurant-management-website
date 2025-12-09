@@ -130,8 +130,6 @@ const TableMap = () => {
     const isAdmin = user?.role === 'Admin';
     const [isTableModalOpen, setTableModalOpen] = useState(false);
     const [editingTable, setEditingTable] = useState(null);
-    const [isMerging, setIsMerging] = useState(false);
-    const [selectedToMerge, setSelectedToMerge] = useState([]);
     const [preordersByTable, setPreordersByTable] = useState({});
     const [isRepositioning, setIsRepositioning] = useState(false);
     const planAreaRef = useRef(null);
@@ -257,55 +255,10 @@ const TableMap = () => {
         }
     };
 
-    const toggleMergeMode = () => {
-        if (isRepositioning) {
-            setIsRepositioning(false);
-        }
-        setIsMerging(!isMerging);
-        setSelectedToMerge([]); // Reset selection when toggling mode
-    };
-
     const toggleRepositionMode = () => {
-        setIsRepositioning((prev) => {
-            if (!prev) {
-                setIsMerging(false);
-                setSelectedToMerge([]);
-            }
-            return !prev;
-        });
+        setIsRepositioning((prev) => !prev);
         setDraggingInfo(null);
         setDragPreview(null);
-    };
-
-    const handleSelectForMerge = (table) => {
-        if (table.status !== 'free') {
-            notify('Chỉ có thể chọn các bàn đang trống để ghép.', 'warning');
-            return;
-        }
-        setSelectedToMerge(prev =>
-            prev.some(t => t.table_id === table.table_id)
-                ? prev.filter(t => t.table_id !== table.table_id)
-                : [...prev, table]
-        );
-    };
-
-    const confirmMerge = async () => {
-        if (selectedToMerge.length < 2) {
-            notify('Bạn phải chọn ít nhất 2 bàn để ghép.', 'warning');
-            return;
-        }
-        const groupName = prompt('Nhập tên cho nhóm bàn mới (ví dụ: G1, VIP-A):');
-        if (groupName) {
-            try {
-                const config = { headers: { 'Authorization': `Bearer ${token}` } };
-                await axios.post('/api/tables/merge', { tableIds: selectedToMerge.map(t => t.table_id), groupName }, config);
-                notify('Ghép bàn thành công!', 'success');
-                toggleMergeMode();
-                fetchTableData();
-            } catch (err) {
-                notify(`Lỗi khi ghép bàn: ${err.response?.data?.message || err.message}`, 'error');
-            }
-        }
     };
 
     const getPointerPercent = useCallback((clientX, clientY) => {
@@ -344,7 +297,7 @@ const TableMap = () => {
     }, [token, fetchTableData, notify]);
 
     const handleDragStart = useCallback((event, table) => {
-        if (!isAdmin || !isRepositioning || isMerging) return;
+        if (!isAdmin || !isRepositioning) return;
         const pointerPercent = getPointerPercent(event.clientX, event.clientY);
         if (!pointerPercent) return;
         const currentX = Number(table.pos_x) || 0;
@@ -360,7 +313,7 @@ const TableMap = () => {
             tableId: table.table_id,
             pos: { x: currentX, y: currentY },
         });
-    }, [isAdmin, isRepositioning, isMerging, getPointerPercent]);
+    }, [isAdmin, isRepositioning, getPointerPercent]);
 
     const finalizeDrag = useCallback(async (clientX, clientY) => {
         if (!draggingInfo) return;
@@ -438,15 +391,9 @@ const TableMap = () => {
                 {isAdmin && (
                     <div className="admin-actions">
                         <button onClick={handleOpenAddModal} className="btn-admin btn-admin-primary" disabled={isRepositioning}>Thêm bàn</button>
-                        <button onClick={toggleMergeMode} className={`btn-admin ${isMerging ? 'btn-admin-danger' : 'btn-admin-secondary'}`}>
-                            {isMerging ? 'Hủy ghép' : 'Ghép bàn'}
-                        </button>
                         <button onClick={toggleRepositionMode} className={`btn-admin ${isRepositioning ? 'btn-admin-danger' : 'btn-admin-secondary'}`}>
                             {isRepositioning ? 'Hủy sắp xếp' : 'Sắp xếp bàn'}
                         </button>
-                        {isMerging && selectedToMerge.length > 1 && (
-                            <button onClick={confirmMerge} className="btn-admin btn-admin-success">Xác nhận ghép</button>
-                        )}
                     </div>
                 )}
                 <div className="legend">
@@ -478,9 +425,9 @@ const TableMap = () => {
                                 element={element}
                                 isAdmin={isAdmin}
                                 onEdit={handleOpenEditModal}
-                                isMerging={isMerging}
-                                onSelectMerge={handleSelectForMerge}
-                                isSelected={selectedToMerge.some(t => t.table_id === element.table_id)}
+                                isMerging={false}
+                                onSelectMerge={() => {}}
+                                isSelected={false}
                                 isRepositioning={isRepositioning && isAdmin}
                                 onDragInit={handleDragStart}
                                 overridePosition={overridePosition}

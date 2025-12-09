@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
 import { getSocket } from '../../socket';
 import { useNotification } from '../../components/common/NotificationContext';
 import { useCurrency } from '../../components/common/CurrencyContext';
+import ReviewModal from '../../components/review/ReviewModal';
 import './OrderHistory.css';
+import './VietQRModal.css';
 
 const formatDateTime = (dateString, timeString) => {
     if (!dateString || !timeString) return 'N/A';
@@ -67,6 +69,7 @@ const ReservationHistory = () => {
     const [error, setError] = useState('');
     const { notify } = useNotification();
     const { formatPrice } = useCurrency();
+    const [reviewModalReservation, setReviewModalReservation] = useState(null);
 
     const [depositPayment, setDepositPayment] = useState({
         reservationId: null,
@@ -202,7 +205,8 @@ const ReservationHistory = () => {
                 error: '',
             });
 
-            notify('Đã tạo mã VietQR. Vui lòng quét mã để thanh toán tiền cọc.', 'success');
+            notify('Đang chuyển đến trang thanh toán...', 'info');
+            window.location.href = `/payment/vietqr/${data.paymentId}`;
         } catch (err) {
             console.error('[ReservationHistory] create deposit payment session error:', err);
             const message = err.response?.data?.message || 'Không thể tạo phiên thanh toán tiền cọc.';
@@ -257,6 +261,41 @@ const ReservationHistory = () => {
             notify(message + ' Vui lòng thử lại hoặc để nhân viên hỗ trợ.', 'error');
         }
     };
+
+    // Đóng popup QR
+    const closeQRModal = useCallback(() => {
+        setDepositPayment({
+            reservationId: null,
+            depositOrderId: null,
+            paymentId: null,
+            method: 'vietqr',
+            qrInfo: null,
+            loading: false,
+            error: '',
+        });
+    }, []);
+
+    // Lắng nghe phím Enter để xác nhận thanh toán
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Enter' && depositPayment.qrInfo && depositPayment.paymentId && !depositPayment.loading) {
+                e.preventDefault();
+                handleDemoConfirmDeposit();
+            }
+            if (e.key === 'Escape' && depositPayment.qrInfo) {
+                e.preventDefault();
+                closeQRModal();
+            }
+        };
+
+        if (depositPayment.qrInfo) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [depositPayment, closeQRModal]);
 
     const PAGE_SIZE = 2;
     const totalPages = Math.max(1, Math.ceil(reservations.length / PAGE_SIZE) || 1);
@@ -339,33 +378,27 @@ const ReservationHistory = () => {
                                             : 'Thanh toán tiền cọc'}
                                     </button>
                                 )}
+                                {res.is_checked_out === 1 && (
+                                    <button
+                                        type="button"
+                                        className={`btn-review ${Number(res.has_review) === 1 ? 'btn-review-update' : ''}`}
+                                        onClick={() => setReviewModalReservation(res)}
+                                    >
+                                        {Number(res.has_review) === 1 ? '✏️ Cập nhật đánh giá' : '⭐ Đánh giá dịch vụ'}
+                                    </button>
+                                )}
                             </div>
-                            {depositPayment.reservationId === res.reservation_id && depositPayment.qrInfo && (
-                                <div className="order-card-preorder">
-                                    <div className="order-preorder-title">Thanh toán tiền cọc VietQR</div>
-                                    <div className="order-preorder-items">
-                                        <p>Số tiền: {formatPrice(depositPayment.qrInfo.amount)}</p>
-                                        <p>Nội dung chuyển khoản: {depositPayment.qrInfo.description}</p>
-                                        <img
-                                            src={depositPayment.qrInfo.imageUrl}
-                                            alt="Mã VietQR tiền cọc"
-                                            className="vietqr-image"
-                                        />
+                            {Number(res.has_review) === 1 && res.review_rating && (
+                                <div className="order-card-review">
+                                    <div className="review-header">
+                                        <span className="review-label">Đánh giá của bạn:</span>
+                                        <span className="review-stars">
+                                            {'★'.repeat(res.review_rating)}{'☆'.repeat(5 - res.review_rating)}
+                                        </span>
+                                        <span className="review-rating-text">({res.review_rating}/5)</span>
                                     </div>
-                                    {depositPayment.error && (
-                                        <p className="payment-error-text">{depositPayment.error}</p>
-                                    )}
-                                    {depositPayment.paymentId && (
-                                        <button
-                                            type="button"
-                                            className="btn-confirm-order demo-confirm-btn"
-                                            onClick={handleDemoConfirmDeposit}
-                                            disabled={depositPayment.loading}
-                                        >
-                                            {depositPayment.loading
-                                                ? 'Đang xác nhận...'
-                                                : 'Tôi đã chuyển khoản xong (Demo)'}
-                                        </button>
+                                    {res.review_comment && (
+                                        <p className="review-comment-text">"{res.review_comment}"</p>
                                     )}
                                 </div>
                             )}
@@ -419,6 +452,77 @@ const ReservationHistory = () => {
                     >
                         Trang sau
                     </button>
+                </div>
+            )}
+
+            {reviewModalReservation && (
+                <ReviewModal
+                    reservation={reviewModalReservation}
+                    onClose={() => setReviewModalReservation(null)}
+                    onSuccess={(newRating, newComment) => {
+                        // Cập nhật đánh giá trong state local
+                        setReservations(prev => prev.map(r => 
+                            r.reservation_id === reviewModalReservation.reservation_id
+                                ? { 
+                                    ...r, 
+                                    has_review: true,
+                                    review_rating: newRating || reviewModalReservation.review_rating,
+                                    review_comment: newComment !== undefined ? newComment : reviewModalReservation.review_comment
+                                }
+                                : r
+                        ));
+                    }}
+                />
+            )}
+
+            {/* VietQR Payment Modal */}
+            {depositPayment.qrInfo && (
+                <div className="vietqr-modal-overlay" onClick={closeQRModal}>
+                    <div className="vietqr-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="vietqr-modal-header">
+                            <h3>💳 Thanh toán tiền cọc</h3>
+                            <button type="button" className="vietqr-modal-close" onClick={closeQRModal}>
+                                ✕
+                            </button>
+                        </div>
+                        <div className="vietqr-modal-body">
+                            <div className="vietqr-qr-wrapper">
+                                <img
+                                    src={depositPayment.qrInfo.imageUrl}
+                                    alt="Mã VietQR tiền cọc"
+                                    className="vietqr-qr-image"
+                                />
+                            </div>
+                            <div className="vietqr-info-section">
+                                <div className="vietqr-amount">
+                                    <span className="vietqr-label">Số tiền:</span>
+                                    <span className="vietqr-value">{formatPrice(depositPayment.qrInfo.amount)}</span>
+                                </div>
+                                <div className="vietqr-description">
+                                    <span className="vietqr-label">Nội dung CK:</span>
+                                    <span className="vietqr-value">{depositPayment.qrInfo.description}</span>
+                                </div>
+                            </div>
+                            {depositPayment.error && (
+                                <p className="vietqr-error">{depositPayment.error}</p>
+                            )}
+                            <div className="vietqr-instructions">
+                                <p>📱 Quét mã QR bằng app ngân hàng để chuyển khoản</p>
+                                <p className="vietqr-hint">Nhấn <kbd>Enter</kbd> để xác nhận sau khi chuyển khoản</p>
+                                <p className="vietqr-hint">Nhấn <kbd>Esc</kbd> để đóng</p>
+                            </div>
+                        </div>
+                        <div className="vietqr-modal-footer">
+                            <button
+                                type="button"
+                                className="vietqr-confirm-btn"
+                                onClick={handleDemoConfirmDeposit}
+                                disabled={depositPayment.loading}
+                            >
+                                {depositPayment.loading ? '⏳ Đang xác nhận...' : '✅ Tôi đã chuyển khoản xong'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

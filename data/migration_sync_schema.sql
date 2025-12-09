@@ -448,6 +448,39 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- ============================================
+-- 8. Bảng RESERVATIONREVIEWS: Đánh giá dịch vụ đặt bàn
+--    Khách đánh giá sau khi checkout
+-- ============================================
+
+SET @table_exists := (
+  SELECT COUNT(*) FROM information_schema.TABLES
+  WHERE TABLE_SCHEMA = 'resv01_db'
+    AND TABLE_NAME = 'reservationreviews'
+);
+
+SET @sql := IF(@table_exists = 0,
+  'CREATE TABLE reservationreviews (
+      review_id INT NOT NULL AUTO_INCREMENT,
+      reservation_id INT NOT NULL,
+      user_id INT NOT NULL,
+      rating INT NOT NULL,
+      comment TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (review_id),
+      UNIQUE KEY unique_reservation_review (reservation_id),
+      KEY (user_id),
+      CONSTRAINT reservationreviews_ibfk_1 FOREIGN KEY (reservation_id) REFERENCES reservations (reservation_id) ON DELETE CASCADE,
+      CONSTRAINT reservationreviews_ibfk_2 FOREIGN KEY (user_id) REFERENCES users (user_id),
+      CONSTRAINT reservationreviews_chk_1 CHECK (rating BETWEEN 1 AND 5)
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci',
+  'SELECT ''Table reservationreviews already exists'' AS info'
+);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================

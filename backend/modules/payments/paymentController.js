@@ -357,6 +357,78 @@ const demoConfirmPayment = async (req, res) => {
     }
 };
 
+const getPaymentInfo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user?.user_id || req.user?.id;
+
+        console.log('[getPaymentInfo] Request for payment:', id, 'by user:', userId);
+        console.log('[getPaymentInfo] req.user:', req.user);
+
+        if (!userId) {
+            return res.status(401).json({ message: 'Vui lòng đăng nhập.' });
+        }
+
+        const payment = await paymentRepository.findById(id);
+        if (!payment) {
+            console.log('[getPaymentInfo] Payment not found:', id);
+            return res.status(404).json({ message: 'Không tìm thấy thông tin thanh toán.' });
+        }
+
+        console.log('[getPaymentInfo] Payment found:', payment.payment_id, 'order:', payment.order_id);
+
+        // Kiểm tra quyền: chỉ user tạo payment mới xem được
+        const [orderRows] = await db.query('SELECT user_id FROM orders WHERE order_id = ?', [payment.order_id]);
+        if (!orderRows.length) {
+            console.log('[getPaymentInfo] Order not found:', payment.order_id);
+            return res.status(404).json({ message: 'Không tìm thấy đơn hàng.' });
+        }
+
+        if (orderRows[0].user_id !== userId) {
+            console.log('[getPaymentInfo] Permission denied. Order user:', orderRows[0].user_id, 'Request user:', userId);
+            return res.status(403).json({ message: 'Bạn không có quyền xem thông tin này.' });
+        }
+
+        // Parse gateway response để lấy QR URL
+        let qrImageUrl = null;
+        let description = `Thanh toan don hang #${payment.order_id}`;
+        
+        if (payment.gateway_response) {
+            try {
+                const gatewayData = typeof payment.gateway_response === 'string' 
+                    ? JSON.parse(payment.gateway_response) 
+                    : payment.gateway_response;
+                qrImageUrl = gatewayData.qrCodeUrl || gatewayData.qrDataURL || gatewayData.qrImageUrl;
+                console.log('[getPaymentInfo] QR URL found:', qrImageUrl ? 'Yes' : 'No');
+            } catch (e) {
+                console.error('[getPaymentInfo] Parse gateway response error:', e);
+            }
+        } else {
+            console.log('[getPaymentInfo] No gateway_response data');
+        }
+
+        // Fallback: Tạo QR URL mới nếu không có
+        if (!qrImageUrl) {
+            console.log('[getPaymentInfo] Generating fallback QR URL');
+            const { buildQrPayload } = require('./services/vietqrService');
+            const qrPayload = buildQrPayload({ amount: payment.amount, orderId: payment.order_id });
+            qrImageUrl = qrPayload.qrImageUrl;
+            description = qrPayload.description;
+        }
+
+        res.json({
+            paymentId: payment.payment_id,
+            amount: payment.amount,
+            description,
+            qrImageUrl,
+            status: payment.status,
+        });
+    } catch (error) {
+        console.error('[getPaymentInfo] Error:', error);
+        res.status(500).json({ message: 'Không thể lấy thông tin thanh toán.' });
+    }
+};
+
 module.exports = {
     createPaymentSession,
     uploadTransferProof,
@@ -364,4 +436,5 @@ module.exports = {
     handleMomoReturn,
     handleMomoIpn,
     demoConfirmPayment,
+    getPaymentInfo,
 };

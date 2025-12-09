@@ -672,9 +672,14 @@ const getMyReservations = async (req, res) => {
                 r.status,
                 r.is_checked_out,
                 r.deposit_order_id,
-                t.table_name
+                t.table_name,
+                CASE WHEN rr.review_id IS NOT NULL THEN 1 ELSE 0 END as has_review,
+                rr.rating as review_rating,
+                rr.comment as review_comment,
+                rr.created_at as review_created_at
              FROM reservations r
              LEFT JOIN restauranttables t ON r.table_id = t.table_id
+             LEFT JOIN reservationreviews rr ON r.reservation_id = rr.reservation_id
              WHERE r.user_id = ?
              ORDER BY r.res_date DESC, r.res_time DESC`,
             [userId]

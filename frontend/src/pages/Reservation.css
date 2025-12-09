@@ -2,6 +2,8 @@
     display: flex;
     align-items: center;
     background-color: var(--bg-light);
+    padding-bottom: 60px;
+    margin-bottom: 40px;
 }
 
 .reservation-container {

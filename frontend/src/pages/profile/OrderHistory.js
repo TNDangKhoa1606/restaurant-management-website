@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useInRouterContext } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
 import './OrderHistory.css'; 
@@ -55,7 +54,6 @@ const buildItemsSummaryText = (order) => {
 
 const OrderHistory = () => {
     const { formatPrice } = useCurrency();
-    const inRouter = useInRouterContext();
     const { token, isAuthenticated, loading: authLoading } = useAuth();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -118,7 +116,6 @@ const OrderHistory = () => {
                     const statusInfo = getStatusInfo(order.status);
                     const id = order.order_id;
                     const total = order.total_amount;
-                    const detailLink = `/profile/orders/${id}`;
                     const itemsSummaryText = buildItemsSummaryText(order);
 
                     return (
@@ -136,11 +133,6 @@ const OrderHistory = () => {
                             <div className="order-card-footer">
                                 <span className="order-date">Ngày đặt: {formatDate(order.placed_at)}</span>
                                 <span className="order-total">Tổng tiền: {formatPrice(total)}</span>
-                                {inRouter ? (
-                                    <Link to={detailLink} className="btn-view-detail">Xem chi tiết</Link>
-                                ) : (
-                                    <a href={detailLink} className="btn-view-detail">Xem chi tiết</a>
-                                )}
                             </div>
                         </div>
                     );

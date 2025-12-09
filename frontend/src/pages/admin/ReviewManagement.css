@@ -1,0 +1,139 @@
+.admin-list-container {
+    padding: 20px;
+}
+
+.admin-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.admin-page-title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-dark);
+}
+
+.admin-table-container {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.admin-table tr:hover {
+    background: #f8f9fa;
+}
+
+.review-summary {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.avg-rating-badge {
+    background: linear-gradient(135deg, #ffc107, #ffb300);
+    color: #333;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+}
+
+.avg-rating-badge strong {
+    font-size: 1.1rem;
+}
+
+.total-reviews {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.rating-stars {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+}
+
+.rating-stars.rating-5 { color: #28a745; }
+.rating-stars.rating-4 { color: #5cb85c; }
+.rating-stars.rating-3 { color: #f0ad4e; }
+.rating-stars.rating-2 { color: #d9534f; }
+.rating-stars.rating-1 { color: #c9302c; }
+
+.rating-number {
+    margin-left: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.comment-cell {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.comment-cell:hover {
+    white-space: normal;
+    overflow: visible;
+}
+
+.no-comment {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding: 15px 0;
+}
+
+.pagination button {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-light);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}

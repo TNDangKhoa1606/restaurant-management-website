@@ -172,7 +172,6 @@
 }
 
 .node:hover {
-    transform: translate(-50%, -50%) scale(1.02);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -257,7 +256,6 @@
 }
 
 .node.admin-editable:hover {
-    transform: scale(1.05);
     box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
 }
 
@@ -267,16 +265,6 @@
     font-weight: 500;
 }
 
-.node.merge-selectable:hover {
-    outline: 3px solid #f1c40f;
-    outline-offset: 2px;
-}
-
-.node.selected-for-merge {
-    outline: 3px solid #e74c3c;
-    outline-offset: 2px;
-    transform: scale(1.1);
-}
 
 .node.node-selected {
     background-color: #2ecc71;

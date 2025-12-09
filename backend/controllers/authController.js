@@ -518,7 +518,7 @@ const getAllCustomers = async (req, res) => {
                 u.created_at AS joinDate,
                 u.loyalty_points,
                 u.is_vip,
-                COALESCE(SUM(CASE WHEN o.status = 'completed' AND o.is_paid = 1 THEN o.total_amount ELSE 0 END), 0) AS totalSpent
+                COALESCE(SUM(CASE WHEN o.status = 'completed' THEN o.total_amount ELSE 0 END), 0) AS totalSpent
             FROM
                 users u
             JOIN

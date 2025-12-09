@@ -9,9 +9,15 @@ const {
     handleMomoReturn,
     handleMomoIpn,
     demoConfirmPayment,
+    getPaymentInfo,
 } = require('../modules/payments/paymentController');
 
+// MoMo routes phải đặt trước /:id để tránh conflict
+router.get('/momo/return', handleMomoReturn);
+router.post('/momo/ipn', handleMomoIpn);
+
 router.post('/session', protect, createPaymentSession);
+router.get('/:id', protect, getPaymentInfo);
 router.post('/:id/proof', protect, upload.single('proof'), uploadTransferProof);
 router.post(
     '/:id/verify',
@@ -22,8 +28,5 @@ router.post(
 
 // Demo endpoint: cho phép giả lập thanh toán thành công cho một payment cụ thể
 router.post('/:id/demo-confirm', protect, demoConfirmPayment);
-
-router.get('/momo/return', handleMomoReturn);
-router.post('/momo/ipn', handleMomoIpn);
 
 module.exports = router;

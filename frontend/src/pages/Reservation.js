@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
@@ -7,6 +7,7 @@ import { useCurrency } from '../components/common/CurrencyContext';
 
 import './Reservation.css';
 import './Checkout.css';
+import './profile/VietQRModal.css';
 import reservationImg from '../assets/images/reservation-img.jpg';
 
 import ReservationConfirmationPopup from '../components/reservation/ReservationConfirmationPopup';
@@ -282,9 +283,9 @@ function Reservation() {
             notify('Thời gian giữ bàn đã hết. Vui lòng đặt bàn lại để thanh toán tiền cọc.', 'warning');
             return;
         }
-        if (paymentMethod === 'vietqr') {
+        if (paymentMethod === 'vietqr' || paymentMethod === 'momo') {
             if (!isAuthenticated || !token) {
-                notify('Vui lòng đăng nhập trước khi sử dụng thanh toán VietQR.', 'warning');
+                notify('Vui lòng đăng nhập trước khi sử dụng thanh toán online.', 'warning');
                 navigate('/login');
                 return;
             }
@@ -300,15 +301,30 @@ function Reservation() {
                     amount: depositAmount,
                 };
                 const { data } = await axios.post('/api/payments/session', body, config);
-                setPaymentId(data.paymentId || null);
-                setQrInfo({
-                    imageUrl: data.qrImageUrl,
-                    amount: data.amount,
-                    description: data.description,
-                });
-                notify('Đặt bàn đã được tạo. Vui lòng quét mã VietQR để thanh toán tiền cọc.', 'success');
-                return;
+                if (data.paymentId) {
+                    notify('Đang chuyển đến trang thanh toán...', 'info');
+                    window.location.href = `/payment/vietqr/${data.paymentId}`;
+                    return;
+                }
+                throw new Error('Không nhận được mã thanh toán.');
             }
+
+            if (paymentMethod === 'momo') {
+                const config = { headers: { Authorization: `Bearer ${token}` } };
+                const body = {
+                    orderId: reservationForPayment.deposit_order_id,
+                    method: 'momo',
+                    amount: depositAmount,
+                };
+                const { data } = await axios.post('/api/payments/session', body, config);
+                if (data.payUrl) {
+                    notify('Đang chuyển hướng đến MoMo...', 'info');
+                    window.location.href = data.payUrl;
+                    return;
+                }
+                throw new Error('Không nhận được link thanh toán MoMo.');
+            }
+
             notify('Đặt bàn đã được ghi nhận. Vui lòng thanh toán tiền cọc tại quầy trước giờ dùng bữa.', 'success');
             navigate('/');
         } catch (error) {
@@ -345,6 +361,28 @@ function Reservation() {
             setIsSubmittingPayment(false);
         }
     };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Enter' && qrInfo && paymentId && !isSubmittingPayment) {
+                e.preventDefault();
+                handleDemoConfirm();
+            }
+            if (e.key === 'Escape' && qrInfo) {
+                e.preventDefault();
+                setQrInfo(null);
+                setPaymentId(null);
+            }
+        };
+
+        if (qrInfo) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [qrInfo, paymentId, isSubmittingPayment]);
 
     return (
         <div className="reservation-page">
@@ -588,12 +626,15 @@ function Reservation() {
                                                     />
                                                     <span>Chuyển khoản VietQR (khuyến khích)</span>
                                                 </div>
-                                                <div className="payment-option coming-soon">
+                                                <div
+                                                    className={`payment-option ${paymentMethod === 'momo' ? 'active' : ''}`}
+                                                    onClick={() => setPaymentMethod('momo')}
+                                                >
                                                     <img
-                                                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/MoMo_Logo.png/220px-MoMo_Logo.png"
+                                                        src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
                                                         alt="MoMo Logo"
                                                     />
-                                                    <span>MoMo (Sắp có)</span>
+                                                    <span>Ví MoMo</span>
                                                 </div>
                                                 <div
                                                     className={`payment-option ${paymentMethod === 'cash' ? 'active' : ''}`}
@@ -606,23 +647,7 @@ function Reservation() {
 
                                             {qrInfo && (
                                                 <div className="vietqr-info">
-                                                    <h3>Thông tin thanh toán VietQR</h3>
-                                                    {reservationForPayment.deposit_order_id && (
-                                                        <p>Đơn hàng #{reservationForPayment.deposit_order_id}</p>
-                                                    )}
-                                                    <p>Số tiền: {formatPrice(qrInfo.amount || depositAmount)}</p>
-                                                    <p>Nội dung chuyển khoản: {qrInfo.description}</p>
-                                                    <img src={qrInfo.imageUrl} alt="Mã VietQR" className="vietqr-image" />
-                                                    {paymentId && (
-                                                        <button
-                                                            type="button"
-                                                            className="btn-confirm-order demo-confirm-btn"
-                                                            onClick={handleDemoConfirm}
-                                                            disabled={isSubmittingPayment || isReservationHoldExpired}
-                                                        >
-                                                            Tôi đã chuyển khoản xong (Demo)
-                                                        </button>
-                                                    )}
+                                                    <p className="vietqr-hint-text"></p>
                                                 </div>
                                             )}
 
