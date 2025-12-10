@@ -2,7 +2,7 @@
 -- CẬP NHẬT HÌNH ẢNH CHO TẤT CẢ MÓN ĂN
 -- File này thêm image_url cho 100 món trong database
 -- ============================================
-resv01_db
+
 USE resv01_db;
 
 -- ============ KHAI VỊ (4 món) ============
