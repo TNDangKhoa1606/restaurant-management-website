@@ -5,7 +5,7 @@
 USE resv01_db;
 
 -- ============ PERMISSIONS ============
-CREATE TABLE IF NOT EXISTS permissions (
+CREATE TABLE IF NOT EXISTS permissions (resv01_db
     permission_id INT NOT NULL AUTO_INCREMENT,
     permission_key VARCHAR(50) NOT NULL UNIQUE,
     permission_name VARCHAR(100) NOT NULL,
