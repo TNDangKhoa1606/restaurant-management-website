@@ -189,8 +189,8 @@ function ReservationManagement() {
                     >
                         <option value="">Tất cả trạng thái</option>
                         <option value="booked">Chờ xác nhận</option>
+                        <option value="completed">Đang phục vụ / Đã checkout</option>
                         <option value="cancelled">Đã hủy</option>
-                        <option value="completed">Đang phục vụ</option>
                     </select>
 
                 </div>

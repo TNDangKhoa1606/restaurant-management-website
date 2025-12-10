@@ -30,14 +30,12 @@ function DashboardLayout({ roleConfig }) {
 
     const normalizedRole = (user?.role || roleConfig.roleName)?.toLowerCase();
 
-    const handleNavLinkClick = (event, link) => {
+    // Filter navLinks theo role của user - chỉ hiển thị menu phù hợp
+    const filteredNavLinks = navLinks.filter((link) => {
         const allowedRoles = (link.allowedRoles || []).map((role) => role.toLowerCase());
-
-        if (allowedRoles.length > 0 && (!normalizedRole || !allowedRoles.includes(normalizedRole))) {
-            event.preventDefault();
-            notify('Bạn không có quyền truy cập vào menu này!', 'warning');
-        }
-    };
+        // Nếu không có allowedRoles hoặc role của user nằm trong danh sách cho phép
+        return allowedRoles.length === 0 || allowedRoles.includes(normalizedRole);
+    });
 
     return (
         <div className="admin-layout">
@@ -48,9 +46,9 @@ function DashboardLayout({ roleConfig }) {
                 </div>
                 <nav className="sidebar-nav">
                     <ul>
-                        {navLinks.map((link, index) => (
+                        {filteredNavLinks.map((link, index) => (
                             <li key={index}>
-                                <NavLink to={link.to} end={link.end !== false} onClick={(event) => handleNavLinkClick(event, link)}>{link.text}</NavLink>
+                                <NavLink to={link.to} end={link.end !== false}>{link.text}</NavLink>
                             </li>
                         ))}
                     </ul>

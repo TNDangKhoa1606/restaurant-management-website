@@ -389,8 +389,25 @@ const emitReservationsUpdateForUser = async (userId) => {
     }
 };
 
+/**
+ * Emit tables:update event để thông báo sơ đồ bàn cần refresh
+ * Gọi khi: checkout, thay đổi trạng thái bàn, tạo order dine-in
+ */
+const emitTablesUpdate = (tableId = null) => {
+    if (!ioInstance) {
+        return;
+    }
+
+    // Broadcast tới tất cả clients đang xem sơ đồ bàn
+    ioInstance.emit('tables:update', { 
+        tableId, 
+        timestamp: Date.now() 
+    });
+};
+
 module.exports = {
     initSocket,
     emitReservationsUpdateForUser,
     getIoInstance,
+    emitTablesUpdate,
 };

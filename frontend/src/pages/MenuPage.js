@@ -66,7 +66,15 @@ const MenuCategoryCard = ({ title, image, items }) => {
         <div className="menu-category-card">
             <div className="card-inner">
                 <div className="card-image-wrapper">
-                    <img src={image} alt={title} />
+                    {/* Hiển thị hình category hoặc hình món đầu tiên nếu có */}
+                    <img 
+                        src={items[0]?.image || image} 
+                        alt={title}
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = image; // Fallback về hình category nếu lỗi
+                        }}
+                    />
                 </div>
                 <h3 className="card-title">{title}</h3>
                 <ul className="card-item-list">
@@ -84,22 +92,21 @@ const MenuPage = () => {
     const [menuData, setMenuData] = useState(fallbackMenuData);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const { formatPrice } = useCurrency();
 
     const getCategoryImage = (categoryName) => {
         switch (categoryName) {
             case 'Khai vị':
-                return 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+                return '/assets/images/img_menu/trai_nghiem_goi_mon.png';
             case 'Món chính':
-                return 'https://images.pexels.com/photos/2347311/pexels-photo-2347311.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+                return '/assets/images/img_menu/các món chính khác.jpg';
             case 'Tráng miệng':
-                return 'https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+                return '/assets/images/img_menu/Kem vani socola.webp';
             case 'Đồ uống':
-                return 'https://images.pexels.com/photos/416528/pexels-photo-416528.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+                return '/assets/images/img_menu/Trà sữa trân châu.webp';
             case 'Món Ăn Kèm':
-                return 'https://images.pexels.com/photos/3642713/pexels-photo-3642713.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+                return '/assets/images/img_menu/các món ăn kèm.webp';
             default:
-                return 'https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+                return '/assets/images/img_menu/COMBO & SET ĂN TIỆN LỢI.png';
         }
     };
 
@@ -110,23 +117,15 @@ const MenuPage = () => {
             items: [],
         });
 
-        const noodleImage = 'https://images.pexels.com/photos/2347311/pexels-photo-2347311.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
-
         const groups = {
-            vietnam: createGroup('Mì, Phở & Bún Việt Nam', noodleImage),
-            japan: createGroup('Mì Nhật Bản', noodleImage),
-            korea: createGroup('Mì Hàn Quốc', noodleImage),
-            thailand: createGroup('Mì Thái Lan', noodleImage),
-            singaporeMalaysia: createGroup('Mì Singapore & Malaysia', noodleImage),
-            china: createGroup('Mì Trung Hoa', noodleImage),
-            italy: createGroup(
-                'Mì Ý & Pasta',
-                'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
-            ),
-            others: createGroup(
-                'Món chính khác',
-                'https://images.pexels.com/photos/769969/pexels-photo-769969.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
-            ),
+            vietnam: createGroup('Mì, Phở & Bún Việt Nam', '/assets/images/img_menu/mi_pho_bun_vn.jpg'),
+            japan: createGroup('Mì Nhật Bản', '/assets/images/img_menu/mi_nhat_ ban.jpg'),
+            korea: createGroup('Mì Hàn Quốc', '/assets/images/img_menu/mi_han_quoc.jpg'),
+            thailand: createGroup('Mì Thái Lan', '/assets/images/img_menu/mi_thai_lan.jpg'),
+            singaporeMalaysia: createGroup('Mì Singapore & Malaysia', '/assets/images/img_menu/mi_singapore_malaysia.jpg'),
+            china: createGroup('Mì Trung Hoa', '/assets/images/img_menu/Mì hoành thánh xá xíu.jpg'),
+            italy: createGroup('Mì Ý & Pasta', '/assets/images/img_menu/Mì Ý & Pasta.jpg'),
+            others: createGroup('Món chính khác', '/assets/images/img_menu/các món chính khác.jpg'),
         };
 
         const containsAny = (text, keywords) => {
@@ -139,6 +138,7 @@ const MenuPage = () => {
             const dishItem = {
                 name,
                 price: item.price,
+                image: item.image,
             };
 
             // Việt Nam: phở, bún, mì Quảng, Huế, riêu
@@ -281,6 +281,7 @@ const MenuPage = () => {
                                 items: group.items.map((item) => ({
                                     name: item.name,
                                     price: item.price,
+                                    image: item.image,
                                 })),
                             });
                         }
@@ -296,6 +297,7 @@ const MenuPage = () => {
                             items: group.items.map((item) => ({
                                 name: item.name,
                                 price: item.price,
+                                image: item.image,
                             })),
                         });
                     });

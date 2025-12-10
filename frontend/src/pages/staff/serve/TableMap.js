@@ -6,6 +6,7 @@ import { useAuth } from '../../AuthContext'; // Import useAuth để kiểm tra 
 import TableModal from '../../../components/admin/TableModal';
 import floorStaticElements from '../../../config/floorStaticElements';
 import { useNotification } from '../../../components/common/NotificationContext';
+import { getSocket } from '../../../socket';
 
 const statusMap = {
     free: { text: 'TRỐNG', className: 'st-vacant' },
@@ -183,6 +184,25 @@ const TableMap = () => {
             fetchPreorders();
         }
     }, [authLoading, fetchTableData, fetchPreorders]);
+
+    useEffect(() => {
+        if (!token) return;
+
+        const socket = getSocket(token);
+        
+        const handleTablesUpdate = (data) => {
+            console.log('[TableMap] tables:update received:', data);
+            // Refresh data khi có thay đổi trạng thái bàn
+            fetchTableData();
+            fetchPreorders();
+        };
+
+        socket.on('tables:update', handleTablesUpdate);
+
+        return () => {
+            socket.off('tables:update', handleTablesUpdate);
+        };
+    }, [token, fetchTableData, fetchPreorders]);
 
     const floorData = useMemo(() => {
         const baseFloor = floors.find(f => f.floor_id === currentFloorId);

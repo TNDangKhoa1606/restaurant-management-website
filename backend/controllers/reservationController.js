@@ -1,6 +1,6 @@
 const db = require('../config/db');
 const sendEmail = require('../utils/sendEmail');
-const { emitReservationsUpdateForUser } = require('../socket');
+const { emitReservationsUpdateForUser, emitTablesUpdate } = require('../socket');
 const { sendReservationNotification } = require('../services/notificationService');
 
 const PREORDER_NOTE_REGEX = /Pre-order cho đặt bàn\s*#(\d+)/i;
@@ -869,6 +869,13 @@ const updateReservationStatus = async (req, res) => {
             }
         }
 
+        // Emit tables update khi thay đổi trạng thái (khách đến, hủy, etc.)
+        try {
+            emitTablesUpdate(tableId);
+        } catch (error) {
+            console.error('Emit tables update error (updateReservationStatus):', error);
+        }
+
         res.json({ message: 'Cập nhật trạng thái đặt bàn thành công.' });
     } catch (error) {
         console.error('Update reservation status error:', error);
@@ -913,6 +920,28 @@ const checkoutReservation = async (req, res) => {
             return res.status(400).json({ message: 'Chỉ có thể checkout đặt bàn đang ở trạng thái "Hoàn thành" (đang phục vụ).' });
         }
 
+        // Kiểm tra tất cả món trong order của bàn này đã hoàn thành chưa
+        const [pendingItems] = await connection.query(
+            `SELECT oi.dish_id, d.name, oi.status 
+             FROM orders o
+             JOIN orderitems oi ON o.order_id = oi.order_id
+             JOIN dishes d ON oi.dish_id = d.dish_id
+             WHERE o.table_id = ? 
+               AND o.order_type = 'dine-in'
+               AND o.status IN ('new', 'preparing')
+               AND oi.status IN ('new', 'preparing')`,
+            [reservation.table_id]
+        );
+
+        if (pendingItems.length > 0) {
+            await connection.rollback();
+            const pendingDishes = pendingItems.map(item => item.name).join(', ');
+            return res.status(400).json({ 
+                message: `Không thể checkout. Còn ${pendingItems.length} món chưa hoàn thành: ${pendingDishes}. Vui lòng chờ bếp hoàn thành tất cả món.`,
+                pendingItems: pendingItems
+            });
+        }
+
         // Đánh dấu reservation đã checkout và giải phóng bàn
         await connection.query(
             'UPDATE reservations SET is_checked_out = 1 WHERE reservation_id = ?',
@@ -933,6 +962,13 @@ const checkoutReservation = async (req, res) => {
             } catch (error) {
                 console.error('Emit reservations update error (checkoutReservation):', error);
             }
+        }
+
+        // Emit tables update để sơ đồ bàn tự động refresh
+        try {
+            emitTablesUpdate(reservation.table_id);
+        } catch (error) {
+            console.error('Emit tables update error (checkoutReservation):', error);
         }
 
         return res.json({

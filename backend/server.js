@@ -18,6 +18,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const exchangeRateRoutes = require('./routes/exchangeRateRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const permissionRoutes = require('./routes/permissionRoutes');
 const { autoExpireUnpaidReservations } = require('./controllers/reservationController');
 const { initSocket } = require('./socket');
 
@@ -51,6 +52,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/exchange-rate', exchangeRateRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/permissions', permissionRoutes);
 
 app.get('/', (req, res) => {
     res.send('Backend server is running!');

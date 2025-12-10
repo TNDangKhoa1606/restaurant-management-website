@@ -127,7 +127,11 @@ const DishModal = ({ isOpen, onClose, onSave, dish, token }) => {
                         {formData.image_url && !selectedFile && (
                             <div style={{ marginTop: '10px' }}>
                                 <p>Ảnh hiện tại:</p>
-                                <img src={`http://localhost:5000${formData.image_url}`} alt="Current dish" style={{ width: '100px', height: 'auto' }} />
+                                <img 
+                                    src={formData.image_url.startsWith('http') ? formData.image_url : `http://localhost:5000${formData.image_url}`} 
+                                    alt="Current dish" 
+                                    style={{ width: '150px', height: 'auto', borderRadius: '8px', border: '1px solid #ddd' }} 
+                                />
                             </div>
                         )}
                     </div>

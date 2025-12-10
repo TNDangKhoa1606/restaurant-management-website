@@ -257,7 +257,6 @@ function InventoryManagement() {
                         <table className="admin-table">
                             <thead>
                                 <tr>
-                                    <th>Ảnh</th>
                                     <th>Tên món</th>
                                     <th>Loại món</th>
                                     <th>Giá</th>
@@ -268,7 +267,6 @@ function InventoryManagement() {
                             <tbody>
                                 {data.dishes.length > 0 ? paginatedDishes.map(item => (
                                     <tr key={item.dish_id}>
-                                        <td><img src={`http://localhost:5000${item.image_url}`} alt={item.name} className="menu-item-image" /></td>
                                         <td>{item.name}</td>
                                         <td>{item.category_name}</td>
                                         <td>{formatPrice(item.price)}</td>
@@ -284,7 +282,7 @@ function InventoryManagement() {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="6" style={{ textAlign: 'center' }}>Không có món ăn nào.</td>
+                                        <td colSpan="5" style={{ textAlign: 'center' }}>Không có món ăn nào.</td>
                                     </tr>
                                 )}
                             </tbody>

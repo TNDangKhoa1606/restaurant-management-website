@@ -21,7 +21,7 @@ const groupByCategory = (items) => {
             name: item.name,
             price: parseFloat(item.price), // Đảm bảo giá là một con số
             info: item.description,
-            image: item.image_url ? `http://localhost:5000${item.image_url}` : null,
+            image: item.image_url, // Giữ nguyên path từ DB (đã có /assets/images/...)
             status: item.status
         });
         return acc;

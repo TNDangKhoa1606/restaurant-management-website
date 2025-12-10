@@ -14,19 +14,19 @@ const MenuHighlightSection = () => {
                             {/* Cột ảnh 1 */}
                             <div className="w-1/2 px-2">
                                 <div className="img-container mb-4">
-                                    <img src="https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Mì Ý" />
+                                    <img src="/assets/images/img_menu/Mì Ý & Pasta.jpg" alt="Mì Ý" />
                                 </div>
                                 <div className="img-container">
-                                    <img src="https://images.pexels.com/photos/5907913/pexels-photo-5907913.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Mì Ramen" />
+                                    <img src="/assets/images/img_menu/mi_nhat_ban.jpg" alt="Mì Ramen" />
                                 </div>
                             </div>
                             {/* Cột ảnh 2 */}
                             <div className="w-1/2 px-2">
                                 <div className="img-container mb-4">
-                                    <img src="https://images.pexels.com/photos/1907097/pexels-photo-1907097.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Mì Phở" />
+                                    <img src="/assets/images/img_menu/mi_pho_bun_vn.jpg" alt="Mì Phở" />
                                 </div>
                                 <div className="img-container">
-                                    <img src="https://images.pexels.com/photos/2664216/pexels-photo-2664216.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Mì Pad Thái" />
+                                    <img src="/assets/images/img_menu/mi_thai_lan.jpg" alt="Mì Pad Thái" />
                                 </div>
                             </div>
                         </div>

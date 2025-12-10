@@ -41,7 +41,6 @@ import Dashboard from './pages/admin/Dashboard';
 import CreateAccount from './pages/admin/CreateAccount';
 import EmployeeList from './pages/admin/EmployeeList';
 import RolePermissions from './pages/admin/RolePermissions';
-import ShiftManagement from './pages/admin/ShiftManagement';
 import InventoryManagement from './pages/admin/InventoryManagement';
 import OrderManagement from './pages/admin/OrderManagement'; // Thêm import
 import CustomerManagement from './pages/admin/CustomerManagement'; // Thêm import
@@ -218,7 +217,6 @@ const adminConfig = {
     { to: '/admin/inventory', text: 'Quản lý Kho', allowedRoles: ['admin'] },
     { to: '/admin/employees', text: 'Quản lý Nhân viên', allowedRoles: ['admin'] },
     { to: '/admin/customers', text: 'Quản lý Khách hàng', allowedRoles: ['admin'] },
-    { to: '/admin/shifts', text: 'Quản lý Ca làm', allowedRoles: ['admin'] },
     { to: '/admin/permissions', text: 'Phân quyền', allowedRoles: ['admin'] },
     { to: '/admin/create-account', text: 'Tạo tài khoản', allowedRoles: ['admin'] },
     { to: '/admin/send-promotion', text: 'Gửi khuyến mãi', allowedRoles: ['admin'] },
@@ -232,7 +230,6 @@ const adminConfig = {
     '/admin/customer-history/:id': 'Lịch sử Khách hàng',
     '/admin/create-account': 'Tạo tài khoản',
     '/admin/permissions': 'Phân quyền chức năng',
-    '/admin/shifts': 'Quản lý ca làm việc',
     '/admin/tables': 'Quản lý bàn ăn',
     '/admin/kitchen-orders': 'Món cần chế biến',
     '/admin/reservations': 'Quản lý Đặt bàn',
@@ -357,7 +354,6 @@ function App() {
                   <Route path="customers" element={<CustomerManagement />} />
                   <Route path="customer-history/:id" element={<CustomerHistory />} />
                   <Route path="permissions" element={<RolePermissions />} />
-                  <Route path="shifts" element={<ShiftManagement />} />
                   <Route path="tables" element={<TableMap />} />
                   <Route path="kitchen-orders" element={<KitchenOrders />} />
                   <Route path="inventory" element={<InventoryManagement />} />
